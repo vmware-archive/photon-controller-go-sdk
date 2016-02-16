@@ -367,4 +367,58 @@ var _ = Describe("Deployment", func() {
 			Expect(createdTask).Should(BeNil())
 		})
 	})
+
+	Describe("PauseSystemAndPauseBackgroundTasks", func() {
+		It("Pause System and Resume System succeeds", func() {
+			mockTask := createMockTask("PAUSE_SYSTEM", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+
+			task, err := client.Deployments.PauseSystem("deploymentId")
+			task, err = client.Tasks.Wait(task.ID)
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("PAUSE_SYSTEM"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+
+			mockTask = createMockTask("RESUME_SYSTEM", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+
+			task, err = client.Deployments.PauseBackgroundTasks("deploymentId")
+			task, err = client.Tasks.Wait(task.ID)
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("RESUME_SYSTEM"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+		})
+
+		It("Pause Background Tasks and Resume System succeeds", func() {
+			mockTask := createMockTask("PAUSE_BACKGROUND_TASKS", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+
+			task, err := client.Deployments.PauseBackgroundTasks("deploymentId")
+			task, err = client.Tasks.Wait(task.ID)
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("PAUSE_BACKGROUND_TASKS"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+
+			mockTask = createMockTask("RESUME_SYSTEM", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+
+			task, err = client.Deployments.PauseBackgroundTasks("deploymentId")
+			task, err = client.Tasks.Wait(task.ID)
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("RESUME_SYSTEM"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+		})
+	})
 })
