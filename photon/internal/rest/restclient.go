@@ -13,6 +13,7 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
+	"github.com/esxcloud/photon-go-sdk/photon"
 	"io"
 	"net/http"
 	"os"
@@ -66,6 +67,12 @@ func GetList(client *http.Client, endpoint string, url string, token string) (re
 	req := Request{"GET", url, "", nil, token}
 	res, err := Do(client, &req)
 	if err != nil {
+		return
+	}
+	if res.StatusCode != 200 {
+		err = photon.ApiError{
+			HttpStatusCode: res.StatusCode,
+		}
 		return
 	}
 
