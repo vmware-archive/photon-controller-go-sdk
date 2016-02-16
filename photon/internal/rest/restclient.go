@@ -18,6 +18,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"github.com/esxcloud/photon-go-sdk/photon"
 )
 
 type Request struct {
@@ -67,6 +68,12 @@ func GetList(client *http.Client, endpoint string, url string, token string) (re
 	res, err := Do(client, &req)
 	if err != nil {
 		return
+	}
+	if res.StatusCode != 200 {
+		err = photon.ApiError{
+			HttpStatusCode : res.StatusCode,
+		}
+		return 
 	}
 
 	decoder := json.NewDecoder(res.Body)
