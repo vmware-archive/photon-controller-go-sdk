@@ -11,6 +11,7 @@ package photon
 
 import (
 	"bytes"
+	"fmt"
 	"encoding/json"
 
 	"github.com/vmware/photon-controller-go-sdk/photon/internal/rest"
@@ -142,11 +143,11 @@ func (api *DeploymentsAPI) GetVms(id string) (result *VMs, err error) {
 }
 
 // Initialize deployment migration from source to destination
-func (api *DeploymentsAPI) InitializeDeploymentMigration(sourceDeploymentId string, id string) (task *Task, err error) {
+func (api *DeploymentsAPI) InitializeDeploymentMigration(sourceAddress string, id string) (task *Task, err error) {
 	res, err := rest.Post(api.client.httpClient,
 		api.client.Endpoint+deploymentUrl+"/"+id+"/initialize_migration",
 		"application/json",
-		bytes.NewBuffer([]byte(id)),
+		bytes.NewBuffer([]byte(sourceAddress)),
 		api.client.options.TokenOptions.AccessToken)
 	if err != nil {
 		return
@@ -157,11 +158,11 @@ func (api *DeploymentsAPI) InitializeDeploymentMigration(sourceDeploymentId stri
 }
 
 // Finalize deployment migration from source to destination
-func (api *DeploymentsAPI) FinalizeDeploymentMigration(sourceDeploymentId string, id string) (task *Task, err error) {
+func (api *DeploymentsAPI) FinalizeDeploymentMigration(sourceAddress string, id string) (task *Task, err error) {
 	res, err := rest.Post(api.client.httpClient,
 		api.client.Endpoint+deploymentUrl+"/"+id+"/finalize_migration",
 		"application/json",
-		bytes.NewBuffer([]byte(id)),
+		bytes.NewBuffer([]byte(sourceAddress)),
 		api.client.options.TokenOptions.AccessToken)
 	if err != nil {
 		return
