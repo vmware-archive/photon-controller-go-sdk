@@ -24,7 +24,6 @@ type Client struct {
 	restClient        *restClient
 	logger            *log.Logger
 	Endpoint          string
-	AuthEndpoint      string
 	Status            *StatusAPI
 	Tenants           *TenantsAPI
 	Tasks             *TasksAPI
@@ -81,7 +80,7 @@ type ClientOptions struct {
 
 // Creates a new photon client with specified options. If options
 // is nil, default options will be used.
-func NewClient(endpoint string, authEndpoint string, options *ClientOptions, logger *log.Logger) (c *Client) {
+func NewClient(endpoint string, options *ClientOptions, logger *log.Logger) (c *Client) {
 	defaultOptions := &ClientOptions{
 		TaskPollTimeout:   30 * time.Minute,
 		TaskPollDelay:     100 * time.Millisecond,
@@ -117,14 +116,13 @@ func NewClient(endpoint string, authEndpoint string, options *ClientOptions, log
 	}
 
 	endpoint = strings.TrimRight(endpoint, "/")
-	authEndpoint = strings.TrimRight(authEndpoint, "/")
 
 	restClient := &restClient{
 		httpClient: &http.Client{Transport: tr},
 		logger:     logger,
 	}
 
-	c = &Client{Endpoint: endpoint, AuthEndpoint: authEndpoint, restClient: restClient, logger: logger}
+	c = &Client{Endpoint: endpoint, restClient: restClient, logger: logger}
 	// Ensure a copy of options is made, rather than using a pointer
 	// which may change out from underneath if misused by the caller.
 	c.options = *defaultOptions
@@ -149,8 +147,8 @@ func NewClient(endpoint string, authEndpoint string, options *ClientOptions, log
 // Creates a new photon client with specified options and http.Client.
 // Useful for functional testing where http calls must be mocked out.
 // If options is nil, default options will be used.
-func NewTestClient(endpoint string, authEndpoint string, options *ClientOptions, httpClient *http.Client, logger *log.Logger) (c *Client) {
-	c = NewClient(endpoint, authEndpoint, options, logger)
+func NewTestClient(endpoint string, options *ClientOptions, httpClient *http.Client, logger *log.Logger) (c *Client) {
+	c = NewClient(endpoint, options, logger)
 	c.restClient.httpClient = httpClient
 	return
 }

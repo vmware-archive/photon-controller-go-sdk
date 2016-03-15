@@ -211,7 +211,7 @@ func testSetup() (server *testServer, client *Client) {
 
 	// ioutil.Discard makes all logging operation be a no-op.
 	logger := log.New(ioutil.Discard, "", log.LstdFlags)
-	client = NewTestClient(uri, uri, options, httpClient, logger)
+	client = NewTestClient(uri, options, httpClient, logger)
 
 	return
 }
@@ -342,6 +342,26 @@ func createMockApiError(code string, message string, httpStatusCode int) *ApiErr
 	}
 
 	return &apiError
+}
+
+func createMockAuthInfo(server *testServer) (mock *AuthInfo) {
+	mock = &AuthInfo{
+		Enabled: false,
+	}
+
+	if server == nil {
+		return
+	}
+
+	address, port, err := server.GetAddressAndPort()
+	if err != nil {
+		return
+	}
+
+	mock.Enabled = true
+	mock.Endpoint = address
+	mock.Port = port
+	return
 }
 
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
