@@ -206,7 +206,7 @@ func testSetup() (server *testServer, client *Client) {
 	}
 
 	httpClient := &http.Client{Transport: transport}
-	client = NewTestClient(uri, uri, options, httpClient)
+	client = NewTestClient(uri, options, httpClient)
 	return
 }
 
@@ -336,6 +336,26 @@ func createMockApiError(code string, message string, httpStatusCode int) *ApiErr
 	}
 
 	return &apiError
+}
+
+func createMockAuthInfo(server *testServer) (mock *AuthInfo) {
+	mock = &AuthInfo{
+		Enabled: false,
+	}
+
+	if server == nil {
+		return
+	}
+
+	address, port, err := server.GetAddressAndPort()
+	if err != nil {
+		return
+	}
+
+	mock.Enabled = true
+	mock.Endpoint = address
+	mock.Port = port
+	return
 }
 
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")

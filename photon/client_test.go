@@ -26,24 +26,9 @@ var _ = Describe("Client", func() {
 			}
 
 			for index, endpoint := range endpointList {
-				client := NewClient(endpoint, "", nil)
+				client := NewClient(endpoint, nil)
 				Expect(client.Endpoint).To(
 					Equal(strings.TrimRight(endpoint, "/")),
-					fmt.Sprintf("Test data index: %v", index))
-			}
-		})
-
-		It("Trims trailing '/' from authEndpoint", func() {
-			endpoint := "http://10.146.1.0/"
-			authEndpointList := []string{
-				"http://10.146.1.1/",
-				"http://10.146.1.0",
-			}
-
-			for index, authEndpoint := range authEndpointList {
-				client := NewClient(endpoint, authEndpoint, nil)
-				Expect(client.AuthEndpoint).To(
-					Equal(strings.TrimRight(authEndpoint, "/")),
 					fmt.Sprintf("Test data index: %v", index))
 			}
 		})
