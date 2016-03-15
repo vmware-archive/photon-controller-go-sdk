@@ -19,76 +19,104 @@ import (
 var _ = Describe("Auth", func() {
 	var (
 		server *testServer
+		authServer *testServer
 		client *Client
 	)
 
 	BeforeEach(func() {
+		if isIntegrationTest() {
+			Skip("Skipping auth test as we don't know if auth is on or off.")
+		}
+
 		server, client = testSetup()
+		authServer = newTlsTestServer()
 	})
 
 	AfterEach(func() {
 		server.Close()
+		authServer.Close()
 	})
 
 	Describe("GetAuth", func() {
 		It("returns auth info", func() {
-			expected := &AuthInfo{
-				Enabled: false,
-				Port:    0,
-			}
+			expected := createMockAuthInfo(nil)
 			server.SetResponseJson(200, expected)
+
 			info, err := client.Auth.Get()
 			fmt.Fprintf(GinkgoWriter, "Got auth info: %+v\n", info)
-			Expect(info).ShouldNot(BeNil())
 			Expect(err).Should(BeNil())
+			Expect(info).Should(BeEquivalentTo(expected))
 		})
-	})
-})
-
-var _ = Describe("Tokens", func() {
-	var (
-		server *testServer
-		client *Client
-	)
-
-	BeforeEach(func() {
-		server, client = testSetup()
-	})
-
-	AfterEach(func() {
-		server.Close()
 	})
 
 	Describe("GetTokensByPassword", func() {
-		It("returns tokens", func() {
-			expected := &TokenOptions{
-				AccessToken:  "fake_access_token",
-				ExpiresIn:    36000,
-				RefreshToken: "fake_refresh_token",
-				IdToken:      "fake_id_token",
-				TokenType:    "Bearer",
-			}
-			server.SetResponseJson(200, expected)
-			info, err := client.Auth.GetTokensByPassword("username", "password")
-			fmt.Fprintf(GinkgoWriter, "Got tokens: %+v\n", info)
-			Expect(info).ShouldNot(BeNil())
-			Expect(err).Should(BeNil())
+		Context("when auth is not enabled", func() {
+			BeforeEach(func() {
+				server.SetResponseJson(200, createMockAuthInfo(nil))
+			})
+
+			It("returns error", func() {
+				tokens, err := client.Auth.GetTokensByPassword("username", "password")
+				Expect(err).Should(MatchError(SdkError{Message:"Authentication not enabled on this endpoint"}))
+				Expect(tokens).Should(BeNil())
+			})
+		})
+
+		Context("when auth is enabled", func() {
+			BeforeEach(func() {
+				server.SetResponseJson(200, createMockAuthInfo(authServer))
+			})
+
+			It("returns tokens", func() {
+				expected := &TokenOptions{
+					AccessToken:  "fake_access_token",
+					ExpiresIn:    36000,
+					RefreshToken: "fake_refresh_token",
+					IdToken:      "fake_id_token",
+					TokenType:    "Bearer",
+				}
+				authServer.SetResponseJson(200, expected)
+
+				info, err := client.Auth.GetTokensByPassword("username", "password")
+				fmt.Fprintf(GinkgoWriter, "Got tokens: %+v\n", info)
+				Expect(err).Should(BeNil())
+				Expect(info).Should(BeEquivalentTo(expected))
+			})
 		})
 	})
 
 	Describe("GetTokensByRefreshToken", func() {
-		It("returns tokens", func() {
-			expected := &TokenOptions{
-				AccessToken: "fake_access_token",
-				ExpiresIn:   36000,
-				IdToken:     "fake_id_token",
-				TokenType:   "Bearer",
-			}
-			server.SetResponseJson(200, expected)
-			info, err := client.Auth.GetTokensByRefreshToken("refresh_token")
-			fmt.Fprintf(GinkgoWriter, "Got tokens: %+v\n", info)
-			Expect(info).ShouldNot(BeNil())
-			Expect(err).Should(BeNil())
+		Context("when auth is not enabled", func() {
+			BeforeEach(func() {
+				server.SetResponseJson(200, createMockAuthInfo(nil))
+			})
+
+			It("returns error", func() {
+				tokens, err := client.Auth.GetTokensByRefreshToken("refresh_token")
+				Expect(err).Should(MatchError(SdkError{Message:"Authentication not enabled on this endpoint"}))
+				Expect(tokens).Should(BeNil())
+			})
+		})
+
+		Context("when auth is enabled", func() {
+			BeforeEach(func() {
+				server.SetResponseJson(200, createMockAuthInfo(authServer))
+			})
+
+			It("returns tokens", func() {
+				expected := &TokenOptions{
+					AccessToken: "fake_access_token",
+					ExpiresIn:   36000,
+					IdToken:     "fake_id_token",
+					TokenType:   "Bearer",
+				}
+				authServer.SetResponseJson(200, expected)
+
+				info, err := client.Auth.GetTokensByRefreshToken("refresh_token")
+				fmt.Fprintf(GinkgoWriter, "Got tokens: %+v\n", info)
+				Expect(err).Should(BeNil())
+				Expect(info).Should(BeEquivalentTo(expected))
+			})
 		})
 	})
 })
