@@ -16,15 +16,22 @@ import (
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
+type testServerResponseData struct {
+	StatuCode *int
+	Body      *string
+}
+
 type testServer struct {
-	HttpServer *httptest.Server
-	StatusCode *int
-	Body       *string
+	HttpServer      *httptest.Server
+	DefaultResponse *testServerResponseData
+	Responses       map[string]*testServerResponseData
 }
 
 type MockTasksPage struct {
@@ -100,24 +107,78 @@ func (s *testServer) Close() {
 }
 
 func (s *testServer) SetResponse(status int, body string) {
-	s.StatusCode = &status
-	s.Body = &body
+	s.DefaultResponse = &testServerResponseData{StatuCode: &status, Body: &body}
 }
 
 func (s *testServer) SetResponseJson(status int, v interface{}) {
 	s.SetResponse(status, toJson(v))
 }
 
-func newTestServer() (server *testServer) {
+func (s *testServer) SetResponseForPath(path string, status int, body string) {
+	s.Responses[path] = &testServerResponseData{&status, &body}
+}
+
+func (s *testServer) SetResponseJsonForPath(path string, status int, v interface{}) {
+	s.SetResponseForPath(path, status, toJson(v))
+}
+
+func (s *testServer) GetAddressAndPort() (address string, port int, err error) {
+	serverURL, err := url.Parse(s.HttpServer.URL)
+	if err != nil {
+		return
+	}
+
+	hostList := strings.Split(serverURL.Host, ":")
+	address = hostList[0]
+	port, err = strconv.Atoi(hostList[1])
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func newUnstartedTestServer() (server *testServer) {
 	status := 200
 	body := ""
-	server = &testServer{nil, &status, &body}
-	server.HttpServer = httptest.NewServer(
+
+	server = &testServer{
+		nil,
+		&testServerResponseData{&status, &body},
+		make(map[string]*testServerResponseData),
+	}
+
+	server.HttpServer = httptest.NewUnstartedServer(
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(*server.StatusCode)
 			w.Header().Set("Content-Type", "application/json")
-			fmt.Fprintln(w, *server.Body)
+
+			var response *testServerResponseData
+			for k, v := range server.Responses {
+				if strings.HasPrefix(r.URL.Path, k) {
+					response = v
+					break
+				}
+			}
+
+			if response == nil {
+				response = server.DefaultResponse
+			}
+
+			w.WriteHeader(*response.StatuCode)
+			fmt.Fprintln(w, *response.Body)
 		}))
+	return
+}
+
+func newTestServer() (server *testServer) {
+	server = newUnstartedTestServer()
+	server.HttpServer.Start()
+	return
+}
+
+func newTlsTestServer() (server *testServer) {
+	server = newUnstartedTestServer()
+	server.HttpServer.StartTLS()
 	return
 }
 
