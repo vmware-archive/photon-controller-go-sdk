@@ -13,6 +13,8 @@ import (
 	"bytes"
 	"crypto/tls"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
@@ -145,7 +147,11 @@ func testSetup() (server *testServer, client *Client) {
 	}
 
 	httpClient := &http.Client{Transport: transport}
-	client = NewTestClient(uri, uri, options, httpClient)
+
+	// ioutil.Discard makes all logging operation be a no-op.
+	logger := log.New(ioutil.Discard, "", log.LstdFlags)
+	client = NewTestClient(uri, uri, options, httpClient, logger)
+
 	return
 }
 

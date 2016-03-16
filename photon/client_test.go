@@ -15,6 +15,8 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"log"
+	"os"
 )
 
 var _ = Describe("Client", func() {
@@ -26,7 +28,7 @@ var _ = Describe("Client", func() {
 			}
 
 			for index, endpoint := range endpointList {
-				client := NewClient(endpoint, "", nil)
+				client := NewClient(endpoint, "", nil, log.New(os.Stderr, "", log.LstdFlags))
 				Expect(client.Endpoint).To(
 					Equal(strings.TrimRight(endpoint, "/")),
 					fmt.Sprintf("Test data index: %v", index))
@@ -41,7 +43,7 @@ var _ = Describe("Client", func() {
 			}
 
 			for index, authEndpoint := range authEndpointList {
-				client := NewClient(endpoint, authEndpoint, nil)
+				client := NewClient(endpoint, authEndpoint, nil, log.New(os.Stderr, "", log.LstdFlags))
 				Expect(client.AuthEndpoint).To(
 					Equal(strings.TrimRight(authEndpoint, "/")),
 					fmt.Sprintf("Test data index: %v", index))

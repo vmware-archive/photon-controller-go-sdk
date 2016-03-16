@@ -12,8 +12,6 @@ package photon
 import (
 	"encoding/json"
 	"strings"
-
-	"github.com/vmware/photon-controller-go-sdk/photon/internal/rest"
 )
 
 // Contains functionality for auth API.
@@ -26,7 +24,7 @@ var tokenUrl string = "/openidconnect/token"
 
 // Gets authentication info.
 func (api *AuthAPI) Get() (info *AuthInfo, err error) {
-	res, err := rest.Get(api.client.httpClient, api.client.Endpoint+authUrl, "")
+	res, err := api.client.restClient.Get(api.client.Endpoint+authUrl, "")
 	if err != nil {
 		return
 	}
@@ -43,7 +41,7 @@ func (api *AuthAPI) Get() (info *AuthInfo, err error) {
 // Gets Tokens from username/password.
 func (api *AuthAPI) GetTokensByPassword(username string, password string) (tokenOptions *TokenOptions, err error) {
 	body := strings.NewReader("grant_type=password&username=" + username + "&password=" + password + "&scope=openid offline_access")
-	res, err := rest.Post(api.client.httpClient,
+	res, err := api.client.restClient.Post(
 		api.client.AuthEndpoint+tokenUrl,
 		"application/x-www-form-urlencoded",
 		body,
@@ -64,7 +62,7 @@ func (api *AuthAPI) GetTokensByPassword(username string, password string) (token
 // Gets tokens from refresh token.
 func (api *AuthAPI) GetTokensByRefreshToken(refreshtoken string) (tokenOptions *TokenOptions, err error) {
 	body := strings.NewReader("grant_type=prefresh_token&refresh_token=" + refreshtoken + "&scope=openid offline_access")
-	res, err := rest.Post(api.client.httpClient,
+	res, err := api.client.restClient.Post(
 		api.client.AuthEndpoint+tokenUrl,
 		"application/x-www-form-urlencoded",
 		body,
