@@ -422,4 +422,35 @@ var _ = Describe("Deployment", func() {
 			Expect(task.State).Should(Equal("COMPLETED"))
 		})
 	})
+
+	Describe("EnableAndDisableClusterType", func() {
+		It("Enable And Disable Cluster Type", func() {
+			clusterType := "SWARM"
+			clusterImageId := "testImageId"
+			clusterConfiguration := ClusterConfiguration{Type: clusterType, ImageID: clusterImageId}
+			server.SetResponseJson(200, clusterConfiguration)
+
+			clusterConfigSpec := &ClusterConfigurationSpec{
+				Type:    clusterType,
+				ImageID: clusterImageId,
+			}
+			clusterConfig, err := client.Deployments.EnableClusterType("deploymentId", clusterConfigSpec)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+
+			Expect(clusterConfig.Type).Should(Equal(clusterConfigSpec.Type))
+			Expect(clusterConfig.ImageID).Should(Equal(clusterConfigSpec.ImageID))
+
+			mockTask := createMockTask("DELETE_CLUSTER_CONFIGURATION", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			disableTask, err := client.Deployments.DisableClusterType("deploymentId", clusterConfigSpec)
+			disableTask, err = client.Tasks.Wait(disableTask.ID)
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(disableTask).ShouldNot(BeNil())
+			Expect(disableTask.Operation).Should(Equal("DELETE_CLUSTER_CONFIGURATION"))
+			Expect(disableTask.State).Should(Equal("COMPLETED"))
+		})
+	})
 })
