@@ -12,11 +12,12 @@ package photon
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/vmware/photon-controller-go-sdk/photon/internal/mocks"
 )
 
 var _ = Describe("VM", func() {
 	var (
-		server       *testServer
+		server       *mocks.Server
 		client       *Client
 		tenantID     string
 		resName      string
