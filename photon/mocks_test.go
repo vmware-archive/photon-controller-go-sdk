@@ -11,9 +11,7 @@ package photon
 
 import (
 	"bytes"
-	"crypto/tls"
 	"math/rand"
-	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -102,18 +100,12 @@ func testSetup() (server *mocks.Server, client *Client) {
 	options := &ClientOptions{
 		IgnoreCertificate: true,
 	}
+
 	if os.Getenv("API_ACCESS_TOKEN") != "" {
 		options.TokenOptions.AccessToken = os.Getenv("API_ACCESS_TOKEN")
 	}
-
-	transport := &http.Transport{
-		TLSClientConfig: &tls.Config{
-			InsecureSkipVerify: options.IgnoreCertificate,
-		},
-	}
-
-	httpClient := &http.Client{Transport: transport}
-	client = NewTestClient(uri, options, httpClient)
+	
+	client = NewClient(uri, options, nil)
 	return
 }
 
