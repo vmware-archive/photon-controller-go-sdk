@@ -14,11 +14,12 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/vmware/photon-controller-go-sdk/photon/internal/mocks"
 )
 
 var _ = Describe("Tenant", func() {
 	var (
-		server *testServer
+		server *mocks.Server
 		client *Client
 	)
 
@@ -228,7 +229,7 @@ var _ = Describe("Tenant", func() {
 
 var _ = Describe("ResourceTicket", func() {
 	var (
-		server   *testServer
+		server   *mocks.Server
 		client   *Client
 		tenantID string
 	)
@@ -281,7 +282,7 @@ var _ = Describe("ResourceTicket", func() {
 
 var _ = Describe("Project", func() {
 	var (
-		server   *testServer
+		server   *mocks.Server
 		client   *Client
 		tenantID string
 		resName  string

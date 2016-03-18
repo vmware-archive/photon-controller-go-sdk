@@ -12,27 +12,14 @@ package photon
 import (
 	"bytes"
 	"crypto/tls"
-	"fmt"
 	"math/rand"
 	"net/http"
-	"net/http/httptest"
-	"net/url"
 	"os"
 	"strconv"
-	"strings"
 	"time"
+
+	"github.com/vmware/photon-controller-go-sdk/photon/internal/mocks"
 )
-
-type testServerResponseData struct {
-	StatuCode *int
-	Body      *string
-}
-
-type testServer struct {
-	HttpServer      *httptest.Server
-	DefaultResponse *testServerResponseData
-	Responses       map[string]*testServerResponseData
-}
 
 type MockTasksPage struct {
 	Items            []Task `json:"items"`
@@ -100,97 +87,15 @@ type MockHostsPage struct {
 	PreviousPageLink string `json:"previousPageLink"`
 }
 
-func (s *testServer) Close() {
-	if s.HttpServer != nil {
-		s.HttpServer.Close()
-	}
-}
-
-func (s *testServer) SetResponse(status int, body string) {
-	s.DefaultResponse = &testServerResponseData{StatuCode: &status, Body: &body}
-}
-
-func (s *testServer) SetResponseJson(status int, v interface{}) {
-	s.SetResponse(status, toJson(v))
-}
-
-func (s *testServer) SetResponseForPath(path string, status int, body string) {
-	s.Responses[path] = &testServerResponseData{&status, &body}
-}
-
-func (s *testServer) SetResponseJsonForPath(path string, status int, v interface{}) {
-	s.SetResponseForPath(path, status, toJson(v))
-}
-
-func (s *testServer) GetAddressAndPort() (address string, port int, err error) {
-	serverURL, err := url.Parse(s.HttpServer.URL)
-	if err != nil {
-		return
-	}
-
-	hostList := strings.Split(serverURL.Host, ":")
-	address = hostList[0]
-	port, err = strconv.Atoi(hostList[1])
-	if err != nil {
-		return
-	}
-
-	return
-}
-
-func newUnstartedTestServer() (server *testServer) {
-	status := 200
-	body := ""
-
-	server = &testServer{
-		nil,
-		&testServerResponseData{&status, &body},
-		make(map[string]*testServerResponseData),
-	}
-
-	server.HttpServer = httptest.NewUnstartedServer(
-		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Content-Type", "application/json")
-
-			var response *testServerResponseData
-			for k, v := range server.Responses {
-				if strings.HasPrefix(r.URL.Path, k) {
-					response = v
-					break
-				}
-			}
-
-			if response == nil {
-				response = server.DefaultResponse
-			}
-
-			w.WriteHeader(*response.StatuCode)
-			fmt.Fprintln(w, *response.Body)
-		}))
-	return
-}
-
-func newTestServer() (server *testServer) {
-	server = newUnstartedTestServer()
-	server.HttpServer.Start()
-	return
-}
-
-func newTlsTestServer() (server *testServer) {
-	server = newUnstartedTestServer()
-	server.HttpServer.StartTLS()
-	return
-}
-
-func testSetup() (server *testServer, client *Client) {
+func testSetup() (server *mocks.Server, client *Client) {
 	// If TEST_ENDPOINT env var is set, return an empty server and point
 	// the client to TEST_ENDPOINT. This lets us run tests as integration tests
 	var uri string
 	if os.Getenv("TEST_ENDPOINT") != "" {
-		server = &testServer{}
+		server = &mocks.Server{}
 		uri = os.Getenv("TEST_ENDPOINT")
 	} else {
-		server = newTestServer()
+		server = mocks.NewTestServer()
 		uri = server.HttpServer.URL
 	}
 
@@ -338,7 +243,7 @@ func createMockApiError(code string, message string, httpStatusCode int) *ApiErr
 	return &apiError
 }
 
-func createMockAuthInfo(server *testServer) (mock *AuthInfo) {
+func createMockAuthInfo(server *mocks.Server) (mock *AuthInfo) {
 	mock = &AuthInfo{
 		Enabled: false,
 	}
