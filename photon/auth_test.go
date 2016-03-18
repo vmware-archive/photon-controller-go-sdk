@@ -14,12 +14,13 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/vmware/photon-controller-go-sdk/photon/internal/mocks"
 )
 
 var _ = Describe("Auth", func() {
 	var (
-		server     *testServer
-		authServer *testServer
+		server     *mocks.Server
+		authServer *mocks.Server
 		client     *Client
 	)
 
@@ -29,7 +30,7 @@ var _ = Describe("Auth", func() {
 		}
 
 		server, client = testSetup()
-		authServer = newTlsTestServer()
+		authServer = mocks.NewTlsTestServer()
 	})
 
 	AfterEach(func() {
