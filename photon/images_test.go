@@ -14,11 +14,12 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/vmware/photon-controller-go-sdk/photon/internal/mocks"
 )
 
 var _ = Describe("Image", func() {
 	var (
-		server *testServer
+		server *mocks.Server
 		client *Client
 	)
 
