@@ -194,14 +194,16 @@ func testSetup() (server *testServer, client *Client) {
 		uri = server.HttpServer.URL
 	}
 
-	options := &ClientOptions{}
+	options := &ClientOptions{
+		IgnoreCertificate: true,
+	}
 	if os.Getenv("API_ACCESS_TOKEN") != "" {
 		options.TokenOptions.AccessToken = os.Getenv("API_ACCESS_TOKEN")
 	}
 
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{
-			InsecureSkipVerify: true,
+			InsecureSkipVerify: options.IgnoreCertificate,
 		},
 	}
 
