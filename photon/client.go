@@ -148,6 +148,15 @@ func NewClient(endpoint string, options *ClientOptions, logger *log.Logger) (c *
 	return
 }
 
+// Creates a new photon client with specified options and http.Client.
+// Useful for functional testing where http calls must be mocked out.
+// If options is nil, default options will be used.
+func NewTestClient(endpoint string, options *ClientOptions, httpClient *http.Client) (c *Client) {
+	c = NewClient(endpoint, options, nil)
+	c.restClient.httpClient = httpClient
+	return
+}
+
 func createPassThroughLogger() (l *log.Logger) {
 	// ioutil.Discard makes all logging operation be a no-op.
 	return log.New(ioutil.Discard, "", log.LstdFlags)
