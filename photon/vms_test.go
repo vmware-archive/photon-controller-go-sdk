@@ -13,6 +13,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/vmware/photon-controller-go-sdk/photon/internal/mocks"
+	"os"
 )
 
 var _ = Describe("VM", func() {
@@ -234,7 +235,12 @@ var _ = Describe("VM", func() {
 			Expect(err).Should(BeNil())
 
 			server.SetResponseJson(200, createMockTask("ATTACH_ISO", "COMPLETED"))
-			attachIsoTask, err := client.VMs.AttachISO(task.Entity.ID, "../testdata/ttylinux-pc_i486-16.1.iso")
+
+			isoPath := "../testdata/ttylinux-pc_i486-16.1.iso"
+			file, err := os.Open(isoPath)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			attachIsoTask, err := client.VMs.AttachISO(task.Entity.ID, file, "ttylinux-pc_i486-16.1.iso")
 			attachIsoTask, err = client.Tasks.Wait(attachIsoTask.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
