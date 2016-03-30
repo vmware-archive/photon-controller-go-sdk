@@ -470,6 +470,7 @@ type Deployment struct {
 	Migration               *MigrationStatus       `json:"migrationStatus,omitempty"`
 	ClusterConfigurations   []ClusterConfiguration `json:"clusterConfigurations,omitempty"`
 	LoadBalancerEnabled     bool                   `json:"loadBalancerEnabled"`
+	LoadBalancerAddress     string                 `json:"loadBalancerAddress"`
 	UsePhotonDHCP           bool                   `json:"use_photon_dhcp",omitempty`
 }
 
