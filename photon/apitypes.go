@@ -444,6 +444,7 @@ type DeploymentCreateSpec struct {
 	ImageDatastores         []string    `json:"imageDatastores"`
 	Auth                    *AuthInfo   `json:"auth"`
 	LoadBalancerEnabled     bool        `json:"loadBalancerEnabled"`
+	LoadBalancerAddress		string		`json:"loadBalancerAddress"`
 }
 
 type MigrationStatus struct {
