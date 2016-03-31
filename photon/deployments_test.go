@@ -339,15 +339,46 @@ var _ = Describe("Deployment", func() {
 		})
 	})
 
-	Describe("UpdateImageDatastores", func() {
-		It("Update image datastores succeeds", func() {
+	Describe("SetSecurityGroups", func() {
+		It("sets security groups for a project", func() {
+			mockTask := createMockTask("SET_SECURITY_GROUPS", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+
+			// Set security groups for the project
+			expected := &Deployment{
+				Auth: &AuthInfo{
+					SecurityGroups: []string{
+						randomString(10),
+						randomString(10),
+					},
+				},
+			}
+
+			payload := SecurityGroupsSpec{
+				Items: expected.Auth.SecurityGroups,
+			}
+			updateTask, err := client.Deployments.SetSecurityGroups("deployment-ID", &payload)
+			updateTask, err = client.Tasks.Wait(updateTask.ID)
+			Expect(err).Should(BeNil())
+
+			// Get the security groups for the project
+			server.SetResponseJson(200, expected)
+			deployment, err := client.Deployments.Get("deployment-ID")
+			Expect(err).Should(BeNil())
+			Expect(deployment.Auth.SecurityGroups).To(ContainElement(payload.Items[0]))
+			Expect(deployment.Auth.SecurityGroups).To(ContainElement(payload.Items[1]))
+		})
+	})
+
+	Describe("SetImageDatastores", func() {
+		It("Succeeds", func() {
 			mockTask := createMockTask("UPDATE_IMAGE_DATASTORES", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 
 			imageDatastores := &ImageDatastores{
 				[]string{"imageDatastore1", "imageDatastore2"},
 			}
-			createdTask, err := client.Deployments.UpdateImageDatastores("deploymentId", imageDatastores)
+			createdTask, err := client.Deployments.SetImageDatastores("deploymentId", imageDatastores)
 			createdTask, err = client.Tasks.Wait(createdTask.ID)
 
 			Expect(err).Should(BeNil())
@@ -355,14 +386,14 @@ var _ = Describe("Deployment", func() {
 			Expect(createdTask.State).Should(Equal("COMPLETED"))
 		})
 
-		It("Update image datastores fails", func() {
+		It("Fails", func() {
 			mockApiError := createMockApiError("INVALID_IMAGE_DATASTORES", "Not a super set", 400)
 			server.SetResponseJson(400, mockApiError)
 
 			imageDatastores := &ImageDatastores{
 				[]string{"imageDatastore1", "imageDatastore2"},
 			}
-			createdTask, err := client.Deployments.UpdateImageDatastores("deploymentId", imageDatastores)
+			createdTask, err := client.Deployments.SetImageDatastores("deploymentId", imageDatastores)
 
 			Expect(err).Should(Equal(*mockApiError))
 			Expect(createdTask).Should(BeNil())

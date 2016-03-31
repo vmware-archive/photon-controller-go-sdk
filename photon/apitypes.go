@@ -574,7 +574,7 @@ type SecurityGroup struct {
 }
 
 // Represents set_security_groups spec
-type SecurityGroups struct {
+type SecurityGroupsSpec struct {
 	Items []string `json:"items"`
 }
 

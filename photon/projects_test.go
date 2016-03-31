@@ -269,7 +269,7 @@ var _ = Describe("Project", func() {
 			}
 			mockTask := createMockTask("SET_TENANT_SECURITY_GROUPS", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
-			securityGroups := &SecurityGroups{
+			securityGroups := &SecurityGroupsSpec{
 				[]string{expected.SecurityGroups[0].Name, expected.SecurityGroups[1].Name},
 			}
 			createTask, err := client.Projects.SetSecurityGroups(projID, securityGroups)
