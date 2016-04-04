@@ -61,7 +61,8 @@ var _ = Describe("Deployment", func() {
 			mockDeployment := Deployment{
 				ImageDatastores:         deploymentSpec.ImageDatastores,
 				UseImageDatastoreForVms: deploymentSpec.UseImageDatastoreForVms,
-				Auth: &AuthInfo{Enabled: false},
+				Auth:                 &AuthInfo{Enabled: false},
+				NetworkConfiguration: &NetworkConfigurationCreateSpec{Enabled: false},
 			}
 			server.SetResponseJson(200, mockDeployment)
 			deployment, err := client.Deployments.Get(task.Entity.ID)
