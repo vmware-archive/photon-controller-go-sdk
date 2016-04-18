@@ -134,8 +134,43 @@ var _ = Describe("Image", func() {
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 
+			server.SetResponseJson(200, createMockImagesPage(Image{Name: "tty_tiny.ova"})))
+			imageList, err := client.Images.GetAll(&ImageGetOptions{})
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(imageList).ShouldNot(BeNil())
+
+			var found bool
+			for _, image := range imageList.Items {
+				if image.Name == "tty_tiny.ova" {
+					found = true
+					break
+				}
+			}
+			Expect(found).Should(BeTrue())
+
+			mockTask = createMockTask("DELETE_IMAGE", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err = client.Images.Delete(task.Entity.ID)
+			task, err = client.Tasks.Wait(task.ID)
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+		})
+
+		It("List images by name succeeds", func() {
+			mockTask := createMockTask("CREATE_IMAGE", "COMPLETED", createMockStep("UPLOAD_IMAGE", "COMPLETED"))
+			server.SetResponseJson(200, mockTask)
+
+			// create image from file
+			imagePath := "../testdata/tty_tiny.ova"
+			task, err := client.Images.CreateFromFile(imagePath, &ImageCreateOptions{ReplicationType: "ON_DEMAND"})
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+
 			server.SetResponseJson(200, createMockImagesPage(Image{Name: "tty_tiny.ova"}))
-			imageList, err := client.Images.GetAll()
+			imageList, err := client.Images.GetAll(&ImageGetOptions{Name: "tty_tiny.ova"})
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 			Expect(imageList).ShouldNot(BeNil())
