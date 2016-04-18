@@ -162,7 +162,7 @@ func createImage(server *mocks.Server, client *Client) string {
 }
 
 func cleanImages(client *Client) {
-	imageList, err := client.Images.GetAll()
+	imageList, err := client.Images.GetAll(&ImageGetOptions{})
 	if err != nil {
 		GinkgoT().Log(err)
 	}
