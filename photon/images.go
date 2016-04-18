@@ -58,7 +58,9 @@ func (api *ImagesAPI) GetAll() (images *Images, err error) {
 	}
 
 	images = &Images{}
+
 	err = json.Unmarshal(res, images)
+	
 	return
 }
 
