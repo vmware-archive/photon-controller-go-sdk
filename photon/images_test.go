@@ -135,7 +135,7 @@ var _ = Describe("Image", func() {
 			Expect(err).Should(BeNil())
 
 			server.SetResponseJson(200, createMockImagesPage(Image{Name: "tty_tiny.ova"}))
-			imageList, err := client.Images.GetAll()
+			imageList, err := client.Images.GetAll(&ImageGetOptions{Name: "tty_tiny.ova"})
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 			Expect(imageList).ShouldNot(BeNil())
