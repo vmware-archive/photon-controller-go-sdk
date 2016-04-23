@@ -270,7 +270,39 @@ var _ = Describe("Deployment", func() {
 			mockTask := createMockTask("PERFORM_DEPLOYMENT", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 
-			task, err := client.Deployments.Deploy("deployment-ID")
+			task, err := client.Deployments.Deploy("deployment-ID",
+				&DeploymentDeployOperation{})
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("PERFORM_DEPLOYMENT"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+
+			mockTask = createMockTask("PERFORM_DELETE_DEPLOYMENT", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err = client.Deployments.Delete(task.Entity.ID)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("PERFORM_DELETE_DEPLOYMENT"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+		})
+	})
+
+	Describe("DeployAndDestroyDeploymentWithDesiredState", func() {
+		It("Deploy and Destroy a deployment succeeds", func() {
+			if isIntegrationTest() {
+				Skip("Skipping deployment test on integration mode. Need undeployed environment")
+			}
+			mockTask := createMockTask("PERFORM_DEPLOYMENT", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+
+			task, err := client.Deployments.Deploy("deployment-ID",
+				&DeploymentDeployOperation{
+					DesiredState: "PAUSED",
+				})
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
