@@ -15,6 +15,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/vmware/photon-controller-go-sdk/photon/internal/mocks"
+	"github.com/vmware/photon-controller-go-sdk/photon/lightwave"
 )
 
 var _ = Describe("Auth", func() {
@@ -117,6 +118,44 @@ var _ = Describe("Auth", func() {
 				fmt.Fprintf(GinkgoWriter, "Got tokens: %+v\n", info)
 				Expect(err).Should(BeNil())
 				Expect(info).Should(BeEquivalentTo(expected))
+			})
+		})
+	})
+
+	Describe("ParseTokenDetails", func() {
+		Context("with the fake token", func() {
+			BeforeEach(func() {
+				server.SetResponseJson(200, createMockAuthInfo(authServer))
+			})
+
+			It("returns tokens", func() {
+				expected := &lightwave.JWTToken{
+					Subject: "ec-admin@esxcloud",
+					Groups:  []string{"esxcloud\\ESXCloudAdmins"},
+					Expires: 1461817527,
+				}
+				authServer.SetResponseJson(200, expected)
+
+				jwtToken, err := client.Auth.parseTokenDetails("eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJlYy1hZG1pbkBlc3hjbG91Z")
+				fmt.Fprintf(GinkgoWriter, "Got token details: %+v\n", jwtToken)
+				Expect(err).Should(BeNil())
+				Expect(jwtToken).Should(BeEquivalentTo(expected))
+			})
+		})
+
+		Context("with the fake raw token", func() {
+			BeforeEach(func() {
+				server.SetResponseJson(200, createMockAuthInfo(authServer))
+			})
+
+			It("returns tokens", func() {
+				expected := "Subject: ec-admin@esxcloud, Groups: esxcloud\\ESXCloudAdmins, Expires: 1461817527"
+				authServer.SetResponseJson(200, expected)
+
+				jwtToken, err := client.Auth.parseTokenDetails("eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJlYy1hZG1pbkBlc3hjbG91Z")
+				fmt.Fprintf(GinkgoWriter, "Got token details: %+v\n", jwtToken)
+				Expect(err).Should(BeNil())
+				Expect(jwtToken).Should(BeEquivalentTo(expected))
 			})
 		})
 	})
