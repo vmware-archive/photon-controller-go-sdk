@@ -116,3 +116,25 @@ func (api *AuthAPI) toTokenOptions(response *lightwave.OIDCTokenResponse) *Token
 		TokenType:    response.TokenType,
 	}
 }
+
+// Parse the given token details.
+func (api *AuthAPI) parseTokenDetails(token string) (jwtToken *lightwave.JWTToken, err error) {
+	oidcClient, err := api.buildOIDCClient()
+	if err != nil {
+		return nil, err
+	}
+
+	jwtToken := oidcClient.parseTokenDetails(token)
+	return jwtToken, nil
+}
+
+// Parse the given token raw details.
+func (api *AuthAPI) parseRawTokenDetails(token string) (jwtToken string, err error) {
+	oidcClient, err := api.buildOIDCClient()
+	if err != nil {
+		return token, err
+	}
+
+	jwtToken, err := oidcClient.parseRawTokenDetails(token)
+	return jwtToken, err
+}
