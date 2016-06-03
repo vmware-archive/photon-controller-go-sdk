@@ -150,4 +150,18 @@ var _ = Describe("Network", func() {
 			Expect(err).Should(BeNil())
 		})
 	})
+
+	Describe("SetDefaultNetwork", func() {
+		It("Set default network succeeds", func() {
+			mockTask := createMockTask("SET_DEFAULT_NETWORK", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+
+			task, err := client.Networks.SetDefault("networkId")
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("SET_DEFAULT_NETWORK"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+		})
+	})
 })
