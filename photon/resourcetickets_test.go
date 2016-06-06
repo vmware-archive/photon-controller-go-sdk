@@ -58,4 +58,32 @@ var _ = Describe("ResourceTicket", func() {
 			Expect(taskList.Items).Should(ContainElement(*task))
 		})
 	})
+
+	Describe("GetResourceTicket", func() {
+		It("Get succeeds", func() {
+			mockTask := createMockTask("CREATE_RESOURCE_TICKET", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			spec := &ResourceTicketCreateSpec{
+				Name:   randomString(10),
+				Limits: []QuotaLineItem{QuotaLineItem{Unit: "GB", Value: 16, Key: "vm.memory"}},
+			}
+			task, err := client.Tenants.CreateResourceTicket(tenantID, spec)
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("CREATE_RESOURCE_TICKET"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+
+			server.SetResponseJson(200, ResourceTicket{TenantId: tenantID, Name: spec.Name,
+				Limits: spec.Limits})
+			resourceTicket, err := client.ResourceTickets.Get(task.Entity.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(resourceTicket.Name).Should(Equal(spec.Name))
+			Expect(resourceTicket.TenantId).Should(Equal(tenantID))
+			Expect(resourceTicket.Limits).Should(Equal(spec.Limits))
+			Expect(resourceTicket.ID).Should(Equal(task.Entity.ID))
+		})
+	})
 })
