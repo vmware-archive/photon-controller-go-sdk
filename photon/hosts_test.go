@@ -281,4 +281,40 @@ var _ = Describe("Host", func() {
 			Expect(err).Should(BeNil())
 		})
 	})
+
+	Describe("SuspendHostAndResumeHost", func() {
+		It("Suspend Host and Resume Host succeeds", func() {
+			mockTask := createMockTask("CREATE_HOST", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+
+			task, err := client.Hosts.Create(hostSpec, "deployment-Id")
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+
+			mockTask = createMockTask("SUSPEND_HOST", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+
+			task, err = client.Hosts.Suspend(task.Entity.ID)
+			task, err = client.Tasks.Wait(task.ID)
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("SUSPEND_HOST"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+
+			mockTask = createMockTask("RESUME_HOST", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+
+			task, err = client.Hosts.Resume(task.Entity.ID)
+			task, err = client.Tasks.Wait(task.ID)
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("RESUME_HOST"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+		})
+	})
 })
