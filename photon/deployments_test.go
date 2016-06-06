@@ -245,7 +245,7 @@ var _ = Describe("Deployment", func() {
 
 				mockTask = createMockTask("DELETE_VM", "COMPLETED")
 				server.SetResponseJson(200, mockTask)
-				task, err = client.VMs.Delete(task.Entity.ID)
+				task, err = client.VMs.Delete(vmTask.Entity.ID)
 				task, err = client.Tasks.Wait(task.ID)
 
 				GinkgoT().Log(err)
