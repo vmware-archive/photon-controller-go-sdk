@@ -90,7 +90,7 @@ func (api *NetworksAPI) SetDefault(id string) (task *Task, err error) {
 	res, err := api.client.restClient.Post(
 		api.client.Endpoint+networkUrl+"/"+id+"/set_default",
 		"application/json",
-		nil,
+		bytes.NewBuffer([]byte("")),
 		api.client.options.TokenOptions.AccessToken)
 	if err != nil {
 		return
