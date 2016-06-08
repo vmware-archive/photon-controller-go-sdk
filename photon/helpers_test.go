@@ -167,7 +167,7 @@ func cleanImages(client *Client) {
 		GinkgoT().Log(err)
 	}
 	for _, image := range imageList.Items {
-		if image.Name == "tty_tiny.ova" {
+		if image.Name == "tty_tiny.ova" || image.Name == "create-image-name" {
 			task, err := client.Images.Delete(image.ID)
 			task, err = client.Tasks.Wait(task.ID)
 			if err != nil {
