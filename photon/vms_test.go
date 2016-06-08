@@ -461,4 +461,66 @@ var _ = Describe("VM", func() {
 			Expect(err).Should(BeNil())
 		})
 	})
+
+	Describe("CreateImage", func() {
+		var (
+			vmID    string
+			imageID string
+		)
+
+		BeforeEach(func() {
+			// Create vm
+			mockTask := createMockTask("CREATE_VM", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err := client.Projects.CreateVM(projID, vmSpec)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			vmID = task.Entity.ID
+		})
+
+		AfterEach(func() {
+			// Delete image
+			mockTask := createMockTask("DELETE_IMAGE", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err := client.Images.Delete(imageID)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+
+			// Delete VM
+			mockTask = createMockTask("DELETE_VM", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err = client.VMs.Delete(vmID)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+		})
+
+		It("CreateImage succeeds", func() {
+			// Create image from vm
+			imageName := randomString(10, "go-sdk-image-")
+			imageCreateOptions := &ImageCreateSpec{Name: imageName, ReplicationType: "ON_DEMAND"}
+			mockTask := createMockTask("CREATE_VM_IMAGE", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			createTask, err := client.VMs.CreateImage(vmID, imageCreateOptions)
+			createTask, err = client.Tasks.Wait(createTask.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(createTask).ShouldNot(BeNil())
+			Expect(createTask.Operation).Should(Equal("CREATE_VM_IMAGE"))
+			Expect(createTask.State).Should(Equal("COMPLETED"))
+
+			// Check image created as expected
+			server.SetResponseJson(200, Image{Name: imageName})
+			image, err := client.Images.Get(createTask.Entity.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(image).ShouldNot(BeNil())
+			Expect(image.ID).Should(Equal(createTask.Entity.ID))
+			Expect(image.Name).Should(Equal(imageName))
+
+			imageID = image.ID
+		})
+	})
 })
