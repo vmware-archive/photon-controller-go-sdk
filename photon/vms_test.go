@@ -461,4 +461,34 @@ var _ = Describe("VM", func() {
 			Expect(err).Should(BeNil())
 		})
 	})
+
+	Describe("CreateImage", func() {
+		It("CreateImage returns a completed task", func() {
+			mockTask := createMockTask("CREATE_VM", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err := client.Projects.CreateVM(projID, vmSpec)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+
+			// Create image from vm
+			imageCreateOptions := &ImageCreateSpec{Name: randomString(10, "go-sdk-image-"), ReplicationType: "ON_DEMAND"}
+			mockTask = createMockTask("CREATE_VM_IMAGE", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			createTask, err := client.VMs.CreateImage(task.Entity.ID, imageCreateOptions)
+			createTask, err = client.Tasks.Wait(createTask.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(createTask).ShouldNot(BeNil())
+			Expect(createTask.Operation).Should(Equal("CREATE_VM_IMAGE"))
+			Expect(createTask.State).Should(Equal("COMPLETED"))
+
+			mockTask = createMockTask("DELETE_VM", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err = client.VMs.Delete(task.Entity.ID)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+		})
+	})
 })
