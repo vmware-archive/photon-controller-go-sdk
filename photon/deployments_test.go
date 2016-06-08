@@ -341,7 +341,8 @@ var _ = Describe("Deployment", func() {
 			mockTask = createMockTask("INITIALIZE_MIGRATE_DEPLOYMENT", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 
-			task, err = client.Deployments.InitializeDeploymentMigration("sourceAddr", "deployment-ID")
+			initializeMigrationOperation := &InitializeMigrationOperation{SourceLoadBalancerAddress: "sourceAddr"}
+			task, err = client.Deployments.InitializeDeploymentMigration(initializeMigrationOperation, "deployment-ID")
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
@@ -352,7 +353,8 @@ var _ = Describe("Deployment", func() {
 			mockTask = createMockTask("FINALIZE_MIGRATE_DEPLOYMENT", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 
-			task, err = client.Deployments.FinalizeDeploymentMigration("sourceAddr", "deployment-ID")
+			finalizeMigrationOperation := &FinalizeMigrationOperation{SourceLoadBalancerAddress: "sourceAddr"}
+			task, err = client.Deployments.FinalizeDeploymentMigration(finalizeMigrationOperation, "deployment-ID")
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
