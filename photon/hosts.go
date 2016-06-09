@@ -169,3 +169,35 @@ func (api *HostsAPI) Resume(id string) (task *Task, err error) {
 	task, err = getTask(getError(res))
 	return
 }
+
+// Host with the specified id enter maintenance mode
+func (api *HostsAPI) EnterMaintenanceMode(id string) (task *Task, err error) {
+	body := []byte{}
+	res, err := api.client.restClient.Post(
+		api.client.Endpoint+hostUrl+"/"+id+"/enter_maintenance",
+		"application/json",
+		bytes.NewReader(body),
+		api.client.options.TokenOptions.AccessToken)
+	if err != nil {
+		return
+	}
+	defer res.Body.Close()
+	task, err = getTask(getError(res))
+	return
+}
+
+// Host with the specified id exit maintenance mode
+func (api *HostsAPI) ExitMaintenanceMode(id string) (task *Task, err error) {
+	body := []byte{}
+	res, err := api.client.restClient.Post(
+		api.client.Endpoint+hostUrl+"/"+id+"/exit_maintenance",
+		"application/json",
+		bytes.NewReader(body),
+		api.client.options.TokenOptions.AccessToken)
+	if err != nil {
+		return
+	}
+	defer res.Body.Close()
+	task, err = getTask(getError(res))
+	return
+}
