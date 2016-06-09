@@ -317,4 +317,70 @@ var _ = Describe("Host", func() {
 			Expect(task.State).Should(Equal("COMPLETED"))
 		})
 	})
+
+	Describe("EnterAndExitMaintenanceMode", func() {
+		var (
+			hostID string
+		)
+
+		BeforeEach(func() {
+			hostID = ""
+
+			// Create host
+			mockTask := createMockTask("CREATE_HOST", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err := client.Hosts.Create(hostSpec, "deployment-Id")
+			Expect(err).Should(BeNil())
+
+			task, err = client.Tasks.Wait(task.ID)
+			if task != nil {
+				hostID = task.Entity.ID
+			}
+			Expect(err).Should(BeNil())
+
+			// Suspend host
+			mockTask = createMockTask("SUSPEND_HOST", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err = client.Hosts.Suspend(hostID)
+			task, err = client.Tasks.Wait(task.ID)
+			Expect(err).Should(BeNil())
+		})
+
+		AfterEach(func() {
+			// Delete host
+			if len(hostID) > 0 {
+				mockTask := createMockTask("DELETE_HOST", "COMPLETED")
+				server.SetResponseJson(200, mockTask)
+				task, err := client.Hosts.Delete(hostID)
+				task, err = client.Tasks.Wait(task.ID)
+				if err != nil {
+					GinkgoT().Log(err)
+				}
+			}
+		})
+
+		It("Host Enter and Exit Maintenance Mode succeeds", func() {
+			mockTask := createMockTask("ENTER_MAINTENANCE_MODE", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err := client.Hosts.EnterMaintenanceMode(hostID)
+			task, err = client.Tasks.Wait(task.ID)
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("ENTER_MAINTENANCE_MODE"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+
+			mockTask = createMockTask("EXIT_MAINTENANCE_MODE", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err = client.Hosts.ExitMaintenanceMode(hostID)
+			task, err = client.Tasks.Wait(task.ID)
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("EXIT_MAINTENANCE_MODE"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+		})
+	})
 })
