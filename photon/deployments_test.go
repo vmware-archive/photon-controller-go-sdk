@@ -493,21 +493,23 @@ var _ = Describe("Deployment", func() {
 		It("Enable And Disable Cluster Type", func() {
 			clusterType := "SWARM"
 			clusterImageId := "testImageId"
-			clusterConfiguration := ClusterConfiguration{Type: clusterType, ImageID: clusterImageId}
-			server.SetResponseJson(200, clusterConfiguration)
-
 			clusterConfigSpec := &ClusterConfigurationSpec{
 				Type:    clusterType,
 				ImageID: clusterImageId,
 			}
-			clusterConfig, err := client.Deployments.EnableClusterType("deploymentId", clusterConfigSpec)
+
+			mockTask := createMockTask("CONFIGURE_CLUSTER", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			enableTask, err := client.Deployments.EnableClusterType("deploymentId", clusterConfigSpec)
+			enableTask, err = client.Tasks.Wait(enableTask.ID)
+
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
+			Expect(enableTask).ShouldNot(BeNil())
+			Expect(enableTask.Operation).Should(Equal("CONFIGURE_CLUSTER"))
+			Expect(enableTask.State).Should(Equal("COMPLETED"))
 
-			Expect(clusterConfig.Type).Should(Equal(clusterConfigSpec.Type))
-			Expect(clusterConfig.ImageID).Should(Equal(clusterConfigSpec.ImageID))
-
-			mockTask := createMockTask("DELETE_CLUSTER_CONFIGURATION", "COMPLETED")
+			mockTask = createMockTask("DELETE_CLUSTER_CONFIGURATION", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 			disableTask, err := client.Deployments.DisableClusterType("deploymentId", clusterConfigSpec)
 			disableTask, err = client.Tasks.Wait(disableTask.ID)
