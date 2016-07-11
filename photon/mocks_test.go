@@ -63,10 +63,10 @@ type MockFlavorsPage struct {
 	PreviousPageLink string   `json:"previousPageLink"`
 }
 
-type MockNetworksPage struct {
-	Items            []Network `json:"items"`
-	NextPageLink     string    `json:"nextPageLink"`
-	PreviousPageLink string    `json:"previousPageLink"`
+type MockSubnetsPage struct {
+	Items            []Subnet `json:"items"`
+	NextPageLink     string   `json:"nextPageLink"`
+	PreviousPageLink string   `json:"previousPageLink"`
 }
 
 type MockClustersPage struct {
@@ -195,8 +195,8 @@ func createMockFlavorsPage(flavors ...Flavor) *MockFlavorsPage {
 	return &flavorsPage
 }
 
-func createMockNetworksPage(networks ...Network) *MockNetworksPage {
-	networksPage := MockNetworksPage{
+func createMockSubnetsPage(networks ...Subnet) *MockSubnetsPage {
+	networksPage := MockSubnetsPage{
 		Items:            networks,
 		NextPageLink:     "",
 		PreviousPageLink: "",

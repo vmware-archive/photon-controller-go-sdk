@@ -211,8 +211,8 @@ func cleanHosts(client *Client) {
 	}
 }
 
-func cleanNetworks(client *Client) {
-	networks, err := client.Networks.GetAll(&NetworkGetOptions{})
+func cleanSubnets(client *Client) {
+	networks, err := client.Subnets.GetAll(&SubnetGetOptions{})
 	if err != nil {
 		GinkgoT().Log(err)
 	}
