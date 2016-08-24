@@ -39,8 +39,8 @@ var _ = Describe("Cluster", func() {
 		kubernetesClusterSpec = &ClusterCreateSpec{
 			Name:               randomString(10, "go-sdk-cluster-"),
 			Type:               "KUBERNETES",
-			SlaveCount:         2,
-			BatchSize:          1,
+			WorkerCount:        2,
+			BatchSizeWorker:    1,
 			ExtendedProperties: kubernetesMap,
 		}
 		mesosMap := map[string]string{"dns": "1.1.1.1", "gateway": "1.1.1.2", "netmask": "255.255.255.128",
@@ -48,8 +48,8 @@ var _ = Describe("Cluster", func() {
 		mesosClusterSpec = &ClusterCreateSpec{
 			Name:               randomString(10, "go-sdk-cluster-"),
 			Type:               "MESOS",
-			SlaveCount:         2,
-			BatchSize:          1,
+			WorkerCount:        2,
+			BatchSizeWorker:    1,
 			ExtendedProperties: mesosMap,
 		}
 	})
@@ -180,7 +180,7 @@ var _ = Describe("Cluster", func() {
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 
-			clusterResize := &ClusterResizeOperation{NewSlaveCount: 3}
+			clusterResize := &ClusterResizeOperation{NewWorkerCount: 3}
 			mockTask = createMockTask("RESIZE_CLUSTER", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 			task, err = client.Clusters.Resize(task.Entity.ID, clusterResize)
@@ -190,14 +190,14 @@ var _ = Describe("Cluster", func() {
 			Expect(task.Operation).Should(Equal("RESIZE_CLUSTER"))
 			Expect(task.State).Should(Equal("COMPLETED"))
 
-			mockCluster := &Cluster{Name: kubernetesClusterSpec.Name, SlaveCount: clusterResize.NewSlaveCount}
+			mockCluster := &Cluster{Name: kubernetesClusterSpec.Name, WorkerCount: clusterResize.NewWorkerCount}
 			server.SetResponseJson(200, mockCluster)
 			cluster, err := client.Clusters.Get(task.Entity.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 			Expect(cluster).ShouldNot(BeNil())
 			Expect(cluster.Name).Should(Equal(kubernetesClusterSpec.Name))
-			Expect(cluster.SlaveCount).Should(Equal(clusterResize.NewSlaveCount))
+			Expect(cluster.WorkerCount).Should(Equal(clusterResize.NewWorkerCount))
 
 			mockTask = createMockTask("DELETE_CLUSTER", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
