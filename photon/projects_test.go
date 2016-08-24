@@ -222,8 +222,8 @@ var _ = Describe("Project", func() {
 			clusterSpec := &ClusterCreateSpec{
 				Name:               randomString(10, "go-sdk-cluster-"),
 				Type:               "KUBERNETES",
-				SlaveCount:         50,
-				BatchSize:          5,
+				WorkerCount:        50,
+				BatchSizeWorker:    5,
 				ExtendedProperties: map[string]string{},
 			}
 
