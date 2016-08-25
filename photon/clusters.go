@@ -21,18 +21,18 @@ type ClustersAPI struct {
 
 var clusterUrl string = "/clusters/"
 
-const EXTENDED_PROPERTY_DNS string = "dns"
-const EXTENDED_PROPERTY_GATEWAY string = "gateway"
-const EXTENDED_PROPERTY_NETMASK string = "netmask"
-const EXTENDED_PROPERTY_MASTER_IP string = "master_ip"
-const EXTENDED_PROPERTY_CONTAINER_NETWORK string = "container_network"
-const EXTENDED_PROPERTY_ZOOKEEPER_IP1 string = "zookeeper_ip1"
-const EXTENDED_PROPERTY_ZOOKEEPER_IP2 string = "zookeeper_ip2"
-const EXTENDED_PROPERTY_ZOOKEEPER_IP3 string = "zookeeper_ip3"
-const EXTENDED_PROPERTY_ETCD_IP1 string = "etcd_ip1"
-const EXTENDED_PROPERTY_ETCD_IP2 string = "etcd_ip2"
-const EXTENDED_PROPERTY_ETCD_IP3 string = "etcd_ip3"
-const EXTENDED_PROPERTY_SSH_KEY string = "ssh_key"
+const ExtendedPropertyDNS string = "dns"
+const ExtendedPropertyGateway string = "gateway"
+const ExtendedPropertyNetMask string = "netmask"
+const ExtendedPropertyMasterIP string = "master_ip"
+const ExtendedPropertyContainerNetwork string = "container_network"
+const ExtendedPropertyZookeeperIP1 string = "zookeeper_ip1"
+const ExtendedPropertyZookeeperIP2 string = "zookeeper_ip2"
+const ExtendedPropertyZookeeperIP3 string = "zookeeper_ip3"
+const ExtendedPropertyETCDIP1 string = "etcd_ip1"
+const ExtendedPropertyETCDIP2 string = "etcd_ip2"
+const ExtendedPropertyETCDIP3 string = "etcd_ip3"
+const ExtendedPropertySSHKey string = "ssh_key"
 
 // Deletes a cluster with specified ID.
 func (api *ClustersAPI) Delete(id string) (task *Task, err error) {
