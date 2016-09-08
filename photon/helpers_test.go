@@ -218,10 +218,30 @@ func cleanSubnets(client *Client) {
 	}
 	for _, network := range networks.Items {
 		if strings.HasPrefix(network.Name, "go-sdk-network-") {
-			task, err := client.VMs.Delete(network.ID)
+			task, err := client.Subnets.Delete(network.ID)
 			task, err = client.Tasks.Wait(task.ID)
 			if err != nil {
 				GinkgoT().Log(err)
+			}
+		}
+	}
+}
+
+func cleanVirtualSubnets(client *Client, projectId string) {
+	subnets, err := client.VirtualSubnets.GetAll(projectId, &VirtualSubnetGetOptions{})
+	if err != nil {
+		GinkgoT().Log(err)
+		return
+	}
+
+	for _, subnet := range subnets.Items {
+		if strings.HasPrefix(subnet.Name, "go-sdk-virtual-network-") {
+			task, err := client.VirtualSubnets.Delete(subnet.ID)
+			if err == nil {
+				task, err = client.Tasks.Wait(task.ID)
+				if err != nil {
+					GinkgoT().Log(err)
+				}
 			}
 		}
 	}
