@@ -361,6 +361,7 @@ type VM struct {
 	Name          string            `json:"name"`
 	State         string            `json:"state"`
 	ID            string            `json:"id"`
+	FloatingIp    string            `json:"floatingIp"`
 }
 
 // Represents multiple VMs returned by the API.

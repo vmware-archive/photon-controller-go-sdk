@@ -373,8 +373,8 @@ var _ = Describe("VM", func() {
 		})
 	})
 
-	Describe("AquireFloatingIp", func() {
-		It("Aquire floating IP for VM", func() {
+	Describe("AcquireFloatingIp", func() {
+		It("Acquire floating IP for VM", func() {
 			mockTask := createMockTask("CREATE_VM", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 			task, err := client.Projects.CreateVM(projID, vmSpec)
@@ -382,13 +382,13 @@ var _ = Describe("VM", func() {
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 
-			mockTask = createMockTask("AQUIRE_FLOATING_IP", "COMPLETED")
+			mockTask = createMockTask("ACQUIRE_FLOATING_IP", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 
-			aquireFloatingIpSpec := &VmFloatingIpSpec{
+			acquireFloatingIpSpec := &VmFloatingIpSpec{
 				NetworkId: "networkId",
 			}
-			task, err = client.VMs.AquireFloatingIp(task.Entity.ID, aquireFloatingIpSpec)
+			task, err = client.VMs.AcquireFloatingIp(task.Entity.ID, acquireFloatingIpSpec)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
@@ -396,7 +396,7 @@ var _ = Describe("VM", func() {
 	})
 
 	Describe("ReleaseFloatingIp", func() {
-		It("Aquire floating IP for VM", func() {
+		It("Acquire floating IP for VM", func() {
 			mockTask := createMockTask("CREATE_VM", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 			task, err := client.Projects.CreateVM(projID, vmSpec)
@@ -404,13 +404,10 @@ var _ = Describe("VM", func() {
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 
-			mockTask = createMockTask("AQUIRE_FLOATING_IP", "COMPLETED")
+			mockTask = createMockTask("RELEASE_FLOATING_IP", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 
-			aquireFloatingIpSpec := &VmFloatingIpSpec{
-				NetworkId: "networkId",
-			}
-			task, err = client.VMs.ReleaseFloatingIp(task.Entity.ID, aquireFloatingIpSpec)
+			task, err = client.VMs.ReleaseFloatingIp(task.Entity.ID)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
