@@ -69,6 +69,12 @@ type MockSubnetsPage struct {
 	PreviousPageLink string   `json:"previousPageLink"`
 }
 
+type MockVirtualSubnetsPage struct {
+	Items            []VirtualSubnet `json:"items"`
+	NextPageLink     string          `json:"nextPageLink"`
+	PreviousPageLink string          `json:"previousPageLink"`
+}
+
 type MockClustersPage struct {
 	Items            []Cluster `json:"items"`
 	NextPageLink     string    `json:"nextPageLink"`
@@ -203,6 +209,16 @@ func createMockSubnetsPage(networks ...Subnet) *MockSubnetsPage {
 	}
 
 	return &networksPage
+}
+
+func createMockVirtualSubnetsPage(networks ...VirtualSubnet) *MockVirtualSubnetsPage {
+	virtualSubnetsPage := MockVirtualSubnetsPage{
+		Items:            networks,
+		NextPageLink:     "",
+		PreviousPageLink: "",
+	}
+
+	return &virtualSubnetsPage
 }
 
 func createMockClustersPage(clusters ...Cluster) *MockClustersPage {
