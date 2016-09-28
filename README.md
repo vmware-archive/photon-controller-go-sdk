@@ -27,7 +27,7 @@ import (
 )
 
 func main() {
-	client := photon.NewClient("http://localhost:9080", nil)
+	client := photon.NewClient("http://localhost:9080", nil, nil)
 	status, err := client.Status.Get()
 	if err != nil {
 		log.Fatal(err)
@@ -45,7 +45,7 @@ go build ./...
 ```
 
 And the output should look something like this:
-`&{READY [{chairman  READY} {housekeeper  READY} {inventory  READY} {rootScheduler  READY}]}`
+`&{READY [{PHOTON_CONTROLLER  READY}]}`
 
 ## Using APIs that return tasks
 
@@ -65,7 +65,7 @@ import (
 )
 
 func main() {
-	client := photon.NewClient("http://localhost:9080", nil)
+	client := photon.NewClient("http://localhost:9080", nil, nil)
 	status, err := client.Status.Get()
 	if err != nil {
 		log.Fatal(err)
@@ -93,6 +93,6 @@ func main() {
 It should now output this:
 
 ```
-&{READY [{chairman  READY} {housekeeper  READY} {inventory  READY} {rootScheduler  READY}]}
+&{READY [{PHOTON_CONTROLLER  READY}]}
 ID of new tenant is: c8989a40-0fa4-4d9a-8e73-2fe4d28d0065
 ```

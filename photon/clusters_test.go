@@ -207,4 +207,31 @@ var _ = Describe("Cluster", func() {
 			Expect(err).Should(BeNil())
 		})
 	})
+
+	Describe("Trigger cluster maintenance", func() {
+		It("Trigger cluster maintenance succeeds", func() {
+			mockTask := createMockTask("CREATE_CLUSTER", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err := client.Projects.CreateCluster(projID, kubernetesClusterSpec)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+
+			mockTask = createMockTask("TRIGGER_CLUSTER_MAINTENANCE", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err = client.Clusters.TriggerMaintenance(task.Entity.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("TRIGGER_CLUSTER_MAINTENANCE"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+
+			mockTask = createMockTask("DELETE_CLUSTER", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err = client.Clusters.Delete(task.Entity.ID)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+		})
+	})
 })
