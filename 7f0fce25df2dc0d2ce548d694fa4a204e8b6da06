@@ -1,0 +1,8 @@
+Verified+1: Gerrit-Jenkins
+Code-Review+2: Varnika Goyal <goyalv@vmware.com>
+Code-Review+2: Sriram Nambakam <snambakam@vmware.com>
+Submitted-by: Kenneth Jung <jungk@vmware.com>
+Submitted-at: Wed, 05 Oct 2016 15:27:50 -0700
+Reviewed-on: https://review.ec.eng.vmware.com/15677
+Project: photon-controller-go-sdk
+Branch: refs/heads/v1.0.0
