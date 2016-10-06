@@ -31,6 +31,9 @@ var _ = ginkgo.Describe("Info", func() {
 
 	ginkgo.Describe("Get", func() {
 		ginkgo.It("Get deployment info successfully", func() {
+			baseVersion := "1.1.0"
+			fullVersion := "1.1.0-bcea65f"
+			gitCommitHash := "bcea65f"
 			networkType := "SOFTWARE_DEFINED"
 			server.SetResponseJson(200, Info{NetworkType: networkType})
 
@@ -39,6 +42,9 @@ var _ = ginkgo.Describe("Info", func() {
 
 			gomega.Expect(err).Should(gomega.BeNil())
 			gomega.Expect(info).ShouldNot(gomega.BeNil())
+			gomega.Expect(info.BaseVersion).Should(gomega.Equal(baseVersion))
+			gomega.Expect(info.FullVersion).Should(gomega.Equal(fullVersion))
+			gomega.Expect(info.GitCommitHash).Should(gomega.Equal(gitCommitHash))
 			gomega.Expect(info.NetworkType).Should(gomega.Equal(networkType))
 		})
 	})
