@@ -642,6 +642,7 @@ type Cluster struct {
 	ProjectID          string            `json:"projectID,omitempty"`
 	WorkerCount        int               `json:"workerCount"`
 	SelfLink           string            `json:"selfLink,omitempty"`
+	ErrorReason				 string            `json:"errorReason,omitempty"`
 	ExtendedProperties map[string]string `json:"extendedProperties"`
 }
 
