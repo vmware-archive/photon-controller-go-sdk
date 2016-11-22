@@ -98,6 +98,12 @@ var _ = Describe("Tenant", func() {
 			Expect(err).Should(BeNil())
 			Expect(tenant.SecurityGroups).Should(Equal(expected.SecurityGroups))
 
+			server.SetResponseJson(200, expected)
+			tenant, err = client.Tenants.Get(tenantName)
+			Expect(err).Should(BeNil())
+			Expect(tenant.Name).Should(Equal(tenantName))
+			Expect(tenant.SecurityGroups).Should(Equal(expected.SecurityGroups))
+
 			// Delete the tenant.
 			mockTask = createMockTask("DELETE_TENANT", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
