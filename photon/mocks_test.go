@@ -51,6 +51,11 @@ type MockTenantsPage struct {
 	PreviousPageLink string   `json:"previousPageLink"`
 }
 
+type MockTenantPage struct {
+	ID 	string `json:"id"`
+	Name	string `json:"name"`
+}
+
 type MockVmsPage struct {
 	Items            []VM   `json:"items"`
 	NextPageLink     string `json:"nextPageLink"`
@@ -179,6 +184,14 @@ func createMockTenantsPage(tenants ...Tenant) *MockTenantsPage {
 	}
 
 	return &tenantsPage
+}
+
+func createMockTenantPage() *MockTenantPage {
+	tenantPage:= MockTenantPage{
+		ID:	"12345",
+		Name:	"TestTenant",
+	}
+	return &tenantPage
 }
 
 func createMockVmsPage(vms ...VM) *MockVmsPage {
