@@ -435,6 +435,22 @@ var _ = Describe("Deployment", func() {
 		})
 	})
 
+	Describe("SyncHostsConfig", func() {
+		It("Sync Hosts Config succeeds", func() {
+			mockTask := createMockTask("SYNC_HOSTS_CONFIG", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+
+			task, err := client.Deployments.SyncHostsConfig("deploymentId")
+			task, err = client.Tasks.Wait(task.ID)
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("SYNC_HOSTS_CONFIG"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+		})
+	})
+
 	Describe("PauseSystemAndPauseBackgroundTasks", func() {
 		It("Pause System and Resume System succeeds", func() {
 			mockTask := createMockTask("PAUSE_SYSTEM", "COMPLETED")
