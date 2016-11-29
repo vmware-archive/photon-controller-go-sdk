@@ -164,7 +164,8 @@ type PersistentDisk struct {
 	Flavor     string          `json:"flavor"`
 	Cost       []QuotaLineItem `json:"cost"`
 	Kind       string          `json:"kind"`
-	Datastore  string          `json:"datastore,omitempty"`
+	DatastoreId  string          `json:"datastoreId,omitempty"`
+	DatastoreName  string          `json:"datastoreName,omitempty"`
 	CapacityGB int             `json:"capacityGb,omitempty"`
 	Name       string          `json:"name"`
 	State      string          `json:"state"`
