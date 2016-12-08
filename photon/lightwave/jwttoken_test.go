@@ -12,16 +12,16 @@ var _ = Describe("JWTToken", func() {
 				expected := &JWTToken{
 					TokenId:    "CfPby7BAlaOI3Uj_TEq_UJOJmYXJiVOYuCYAXPw2l2U",
 					Algorithm:  "RS256",
-					Subject:    "ec-admin@esxcloud",
-					Audience:   []string{"ec-admin@esxcloud", "rs_esxcloud"},
-					Groups:     []string{"esxcloud\\ESXCloudAdmins", "esxcloud\\Everyone"},
-					Issuer:     "https://10.146.64.238/openidconnect/esxcloud",
+					Subject:    "ec-admin@photon-controller",
+					Audience:   []string{"ec-admin@photon-controller", "rs_photon_controller"},
+					Groups:     []string{"photon-controller\\Admins", "photon-controller\\Everyone"},
+					Issuer:     "https://10.146.64.238/openidconnect/photon-controller",
 					IssuedAt:   1461795927,
 					Expires:    1461803127,
-					Scope:      "openid offline_access rs_esxcloud at_groups",
+					Scope:      "openid offline_access rs_photon_controller at_groups",
 					TokenType:  "Bearer",
 					TokenClass: "access_token",
-					Tenant:     "esxcloud",
+					Tenant:     "photon-controller",
 				}
 				resp := ParseTokenDetails(
 					"eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJlYy1hZG1pbkBlc3hjbG91ZCIsImF1ZCI6WyJlYy1hZG1pbkB" +
