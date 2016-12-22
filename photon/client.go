@@ -23,7 +23,7 @@ import (
 type Client struct {
 	options           ClientOptions
 	restClient        *restClient
-	logger            *log.Logger
+	logger            Logger
 	Endpoint          string
 	Status            *StatusAPI
 	Tenants           *TenantsAPI
@@ -83,7 +83,7 @@ type ClientOptions struct {
 
 // Creates a new photon client with specified options. If options
 // is nil, default options will be used.
-func NewClient(endpoint string, options *ClientOptions, logger *log.Logger) (c *Client) {
+func NewClient(endpoint string, options *ClientOptions, logger Logger) (c *Client) {
 	defaultOptions := &ClientOptions{
 		TaskPollTimeout:   30 * time.Minute,
 		TaskPollDelay:     100 * time.Millisecond,
