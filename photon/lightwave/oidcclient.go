@@ -24,9 +24,26 @@ import (
 
 const tokenScope string = "openid offline_access"
 
+// Logger is an interface that extracts all the relevant methods of the stdlib logger.
+// But it allows for different logging libraries to be used as well.
+// There's no standard interface, this is the closest we get, unfortunately.
+type Logger interface {
+	Print(...interface{})
+	Printf(string, ...interface{})
+	Println(...interface{})
+
+	Fatal(...interface{})
+	Fatalf(string, ...interface{})
+	Fatalln(...interface{})
+
+	Panic(...interface{})
+	Panicf(string, ...interface{})
+	Panicln(...interface{})
+}
+
 type OIDCClient struct {
 	httpClient *http.Client
-	logger     *log.Logger
+	logger     Logger
 
 	Endpoint string
 	Options  *OIDCClientOptions
@@ -45,7 +62,7 @@ type OIDCClientOptions struct {
 	TokenScope string
 }
 
-func NewOIDCClient(endpoint string, options *OIDCClientOptions, logger *log.Logger) (c *OIDCClient) {
+func NewOIDCClient(endpoint string, options *OIDCClientOptions, logger Logger) (c *OIDCClient) {
 	if logger == nil {
 		logger = log.New(ioutil.Discard, "", log.LstdFlags)
 	}
