@@ -17,13 +17,15 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/vmware/photon-controller-go-sdk/photon/logs"
 )
 
 // Represents stateless context needed to call photon APIs.
 type Client struct {
 	options           ClientOptions
 	restClient        *restClient
-	logger            Logger
+	logger            logs.Logger
 	Endpoint          string
 	Status            *StatusAPI
 	Tenants           *TenantsAPI
@@ -83,7 +85,7 @@ type ClientOptions struct {
 
 // Creates a new photon client with specified options. If options
 // is nil, default options will be used.
-func NewClient(endpoint string, options *ClientOptions, logger Logger) (c *Client) {
+func NewClient(endpoint string, options *ClientOptions, logger logs.Logger) (c *Client) {
 	defaultOptions := &ClientOptions{
 		TaskPollTimeout:   30 * time.Minute,
 		TaskPollDelay:     100 * time.Millisecond,
