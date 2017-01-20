@@ -21,7 +21,7 @@ type DeploymentsAPI struct {
 
 var deploymentUrl string = "/deployments"
 
-// Creates a deployment
+// Creates the deployment
 func (api *DeploymentsAPI) Create(deploymentSpec *DeploymentCreateSpec) (task *Task, err error) {
 	body, err := json.Marshal(deploymentSpec)
 	if err != nil {
