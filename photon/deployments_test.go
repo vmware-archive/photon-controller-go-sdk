@@ -537,4 +537,29 @@ var _ = Describe("Deployment", func() {
 			Expect(disableTask.State).Should(Equal("COMPLETED"))
 		})
 	})
+
+	Describe("ConfigureNsx", func() {
+		It("Configure NSX", func() {
+			nsxAddress := "nsxAddress"
+			nsxUsername := "nsxUsername"
+			nsxPassword := "nsxPassword"
+
+			nsxConfigSpec := &NsxConfigurationSpec{
+				NsxAddress:  nsxAddress,
+				NsxUsername: nsxUsername,
+				NsxPassword: nsxPassword,
+			}
+
+			mockTask := createMockTask("CONFIGURE_NSX", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			enableTask, err := client.Deployments.ConfigureNsx("deploymentId", nsxConfigSpec)
+			enableTask, err = client.Tasks.Wait(enableTask.ID)
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(enableTask).ShouldNot(BeNil())
+			Expect(enableTask.Operation).Should(Equal("CONFIGURE_NSX"))
+			Expect(enableTask.State).Should(Equal("COMPLETED"))
+		})
+	})
 })
