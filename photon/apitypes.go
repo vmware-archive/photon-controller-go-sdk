@@ -704,7 +704,7 @@ type NsxConfigurationSpec struct {
 	NsxPassword            string            `json:"nsxPassword"`
 	DhcpServerAddresses    map[string]string `json:"dhcpServerAddresses"`
 	PrivateIpRootCidr      string            `json:"privateIpRootCidr"`
-	FloatingIpRootRange    string            `json:"floatingIpRootRange"`
+	FloatingIpRootRange    IpRange           `json:"floatingIpRootRange"`
 	T0RouterId             string            `json:"t0RouterId"`
 	EdgeClusterId          string            `json:"edgeClusterId"`
 	OverlayTransportZoneId string            `json:"overlayTransportZoneId"`
