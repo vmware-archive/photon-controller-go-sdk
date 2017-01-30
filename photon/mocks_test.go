@@ -276,7 +276,8 @@ func createMockApiError(code string, message string, httpStatusCode int) *ApiErr
 
 func createMockAuthInfo(server *mocks.Server) (mock *AuthInfo) {
 	mock = &AuthInfo{
-		Enabled: false,
+		Endpoint: "",
+		Port: 0,
 	}
 
 	if server == nil {
@@ -288,9 +289,9 @@ func createMockAuthInfo(server *mocks.Server) (mock *AuthInfo) {
 		return
 	}
 
-	mock.Enabled = true
 	mock.Endpoint = address
 	mock.Port = port
+
 	return
 }
 
