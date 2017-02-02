@@ -80,8 +80,8 @@ type MockVirtualSubnetsPage struct {
 	PreviousPageLink string          `json:"previousPageLink"`
 }
 
-type MockClustersPage struct {
-	Items            []Cluster `json:"items"`
+type MockServicesPage struct {
+	Items            []Service `json:"items"`
 	NextPageLink     string    `json:"nextPageLink"`
 	PreviousPageLink string    `json:"previousPageLink"`
 }
@@ -234,14 +234,14 @@ func createMockVirtualSubnetsPage(networks ...VirtualSubnet) *MockVirtualSubnets
 	return &virtualSubnetsPage
 }
 
-func createMockClustersPage(clusters ...Cluster) *MockClustersPage {
-	clustersPage := MockClustersPage{
-		Items:            clusters,
+func createMockServicesPage(services ...Service) *MockServicesPage {
+	servicesPage := MockServicesPage{
+		Items:            services,
 		NextPageLink:     "",
 		PreviousPageLink: "",
 	}
 
-	return &clustersPage
+	return &servicesPage
 }
 
 func createMockImagesPage(images ...Image) *MockImagesPage {
