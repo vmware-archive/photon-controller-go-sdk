@@ -1,0 +1,7 @@
+Verified+1: Gerrit-Jenkins
+Code-Review+2: Alain Roy <alainr@vmware.com>
+Submitted-by: Yu Sheng <ysheng@vmware.com>
+Submitted-at: Thu, 02 Feb 2017 15:05:35 -0800
+Reviewed-on: https://review.ec.eng.vmware.com/16992
+Project: photon-controller-go-sdk
+Branch: refs/heads/develop
