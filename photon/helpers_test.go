@@ -247,14 +247,14 @@ func cleanVirtualSubnets(client *Client, projectId string) {
 	}
 }
 
-func cleanClusters(client *Client, projID string) {
-	clusters, err := client.Projects.GetClusters(projID)
+func cleanServices(client *Client, projID string) {
+	services, err := client.Projects.GetServices(projID)
 	if err != nil {
 		GinkgoT().Log(err)
 	}
-	for _, cluster := range clusters.Items {
-		if strings.HasPrefix(cluster.Name, "go-sdk-cluster-") {
-			task, err := client.Clusters.Delete(cluster.ID)
+	for _, service := range services.Items {
+		if strings.HasPrefix(service.Name, "go-sdk-service-") {
+			task, err := client.Services.Delete(service.ID)
 			task, err = client.Tasks.Wait(task.ID)
 			if err != nil {
 				GinkgoT().Log(err)

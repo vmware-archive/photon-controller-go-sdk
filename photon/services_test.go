@@ -15,12 +15,12 @@ import (
 	"github.com/vmware/photon-controller-go-sdk/photon/internal/mocks"
 )
 
-var _ = Describe("Cluster", func() {
+var _ = Describe("Service", func() {
 	var (
 		server                *mocks.Server
 		client                *Client
-		kubernetesClusterSpec *ClusterCreateSpec
-		mesosClusterSpec      *ClusterCreateSpec
+		kubernetesServiceSpec *ServiceCreateSpec
+		mesosServiceSpec      *ServiceCreateSpec
 		tenantID              string
 		resName               string
 		projID                string
@@ -28,7 +28,7 @@ var _ = Describe("Cluster", func() {
 
 	BeforeEach(func() {
 		if isIntegrationTest() {
-			Skip("Skipping cluster test on integration mode. Need to set extendedProperties to use real IPs and masks")
+			Skip("Skipping service test on integration mode. Need to set extendedProperties to use real IPs and masks")
 		}
 		server, client = testSetup()
 		tenantID = createTenant(server, client)
@@ -36,8 +36,8 @@ var _ = Describe("Cluster", func() {
 		projID = createProject(server, client, tenantID, resName)
 		kubernetesMap := map[string]string{"dns": "1.1.1.1", "gateway": "1.1.1.2", "netmask": "255.255.255.128",
 			"master_ip": "1.1.1.3", "container_network": "1.2.0.0/16"}
-		kubernetesClusterSpec = &ClusterCreateSpec{
-			Name:               randomString(10, "go-sdk-cluster-"),
+		kubernetesServiceSpec = &ServiceCreateSpec{
+			Name:               randomString(10, "go-sdk-service-"),
 			Type:               "KUBERNETES",
 			WorkerCount:        2,
 			BatchSizeWorker:    1,
@@ -45,8 +45,8 @@ var _ = Describe("Cluster", func() {
 		}
 		mesosMap := map[string]string{"dns": "1.1.1.1", "gateway": "1.1.1.2", "netmask": "255.255.255.128",
 			"zookeeper_ip1": "1.1.1.4", "zookeeper_ip2": "1.1.1.5", "zookeeper_ip3": "1.1.1.6"}
-		mesosClusterSpec = &ClusterCreateSpec{
-			Name:               randomString(10, "go-sdk-cluster-"),
+		mesosServiceSpec = &ServiceCreateSpec{
+			Name:               randomString(10, "go-sdk-service-"),
 			Type:               "MESOS",
 			WorkerCount:        2,
 			BatchSizeWorker:    1,
@@ -55,79 +55,79 @@ var _ = Describe("Cluster", func() {
 	})
 
 	AfterEach(func() {
-		cleanClusters(client, projID)
+		cleanServices(client, projID)
 		cleanTenants(client)
 		server.Close()
 	})
 
-	Describe("CreateDeleteCluster", func() {
-		It("Kubernetes cluster create and delete succeeds", func() {
-			mockTask := createMockTask("CREATE_CLUSTER", "COMPLETED")
+	Describe("CreateDeleteService", func() {
+		It("Kubernetes service create and delete succeeds", func() {
+			mockTask := createMockTask("CREATE_SERVICE", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 
-			task, err := client.Projects.CreateCluster(projID, kubernetesClusterSpec)
+			task, err := client.Projects.CreateService(projID, kubernetesServiceSpec)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 			Expect(task).ShouldNot(BeNil())
-			Expect(task.Operation).Should(Equal("CREATE_CLUSTER"))
+			Expect(task.Operation).Should(Equal("CREATE_SERVICE"))
 			Expect(task.State).Should(Equal("COMPLETED"))
 
-			mockTask = createMockTask("DELETE_CLUSTER", "COMPLETED")
+			mockTask = createMockTask("DELETE_SERVICE", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
-			task, err = client.Clusters.Delete(task.Entity.ID)
+			task, err = client.Services.Delete(task.Entity.ID)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 			Expect(task).ShouldNot(BeNil())
-			Expect(task.Operation).Should(Equal("DELETE_CLUSTER"))
+			Expect(task.Operation).Should(Equal("DELETE_SERVICE"))
 			Expect(task.State).Should(Equal("COMPLETED"))
 		})
 
-		It("Mesos cluster create and delete succeeds", func() {
-			mockTask := createMockTask("CREATE_CLUSTER", "COMPLETED")
+		It("Mesos s create and delete succeeds", func() {
+			mockTask := createMockTask("CREATE_SERVICE", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 
-			task, err := client.Projects.CreateCluster(projID, mesosClusterSpec)
+			task, err := client.Projects.CreateService(projID, mesosServiceSpec)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 			Expect(task).ShouldNot(BeNil())
-			Expect(task.Operation).Should(Equal("CREATE_CLUSTER"))
+			Expect(task.Operation).Should(Equal("CREATE_SERVICE"))
 			Expect(task.State).Should(Equal("COMPLETED"))
 
-			mockTask = createMockTask("DELETE_CLUSTER", "COMPLETED")
+			mockTask = createMockTask("DELETE_SERVICE", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
-			task, err = client.Clusters.Delete(task.Entity.ID)
+			task, err = client.Services.Delete(task.Entity.ID)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 			Expect(task).ShouldNot(BeNil())
-			Expect(task.Operation).Should(Equal("DELETE_CLUSTER"))
+			Expect(task.Operation).Should(Equal("DELETE_SERVICE"))
 			Expect(task.State).Should(Equal("COMPLETED"))
 		})
 	})
 
-	Describe("GetCluster", func() {
-		It("Get cluster succeeds", func() {
-			mockTask := createMockTask("CREATE_CLUSTER", "COMPLETED")
+	Describe("GetService", func() {
+		It("Get service succeeds", func() {
+			mockTask := createMockTask("CREATE_SERVICE", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 
-			task, err := client.Projects.CreateCluster(projID, kubernetesClusterSpec)
+			task, err := client.Projects.CreateService(projID, kubernetesServiceSpec)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 
-			server.SetResponseJson(200, Cluster{Name: kubernetesClusterSpec.Name})
-			cluster, err := client.Clusters.Get(task.Entity.ID)
+			server.SetResponseJson(200, Service{Name: kubernetesServiceSpec.Name})
+			service, err := client.Services.Get(task.Entity.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
-			Expect(cluster).ShouldNot(BeNil())
-			Expect(cluster.Name).Should(Equal(kubernetesClusterSpec.Name))
+			Expect(service).ShouldNot(BeNil())
+			Expect(service.Name).Should(Equal(kubernetesServiceSpec.Name))
 
-			mockTask = createMockTask("DELETE_CLUSTER", "COMPLETED")
+			mockTask = createMockTask("DELETE_SERVICE", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
-			task, err = client.Clusters.Delete(task.Entity.ID)
+			task, err = client.Services.Delete(task.Entity.ID)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
@@ -136,99 +136,99 @@ var _ = Describe("Cluster", func() {
 
 	Describe("GetVMs", func() {
 		It("Get vms succeeds", func() {
-			clusterVMName := "MasterVM"
-			mockTask := createMockTask("CREATE_CLUSTER", "COMPLETED")
+			serviceVMName := "MasterVM"
+			mockTask := createMockTask("CREATE_SERVICE", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 
-			task, err := client.Projects.CreateCluster(projID, kubernetesClusterSpec)
+			task, err := client.Projects.CreateService(projID, kubernetesServiceSpec)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 
-			mockVm := VM{Name: clusterVMName}
+			mockVm := VM{Name: serviceVMName}
 			mockVmsPage := createMockVmsPage(mockVm)
 			server.SetResponseJson(200, mockVmsPage)
-			vmList, err := client.Clusters.GetVMs(projID)
+			vmList, err := client.Services.GetVMs(projID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 			Expect(vmList).ShouldNot(BeNil())
 
 			var found bool
 			for _, vm := range vmList.Items {
-				if vm.Name == clusterVMName {
+				if vm.Name == serviceVMName {
 					found = true
 					break
 				}
 			}
 			Expect(found).Should(BeTrue())
 
-			mockTask = createMockTask("DELETE_CLUSTER", "COMPLETED")
+			mockTask = createMockTask("DELETE_SERVICE", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
-			task, err = client.Clusters.Delete(task.Entity.ID)
+			task, err = client.Services.Delete(task.Entity.ID)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 		})
 	})
 
-	Describe("Resize cluster", func() {
+	Describe("Resize service", func() {
 		It("Resize succeeds", func() {
-			mockTask := createMockTask("CREATE_CLUSTER", "COMPLETED")
+			mockTask := createMockTask("CREATE_SERVICE", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
-			task, err := client.Projects.CreateCluster(projID, kubernetesClusterSpec)
+			task, err := client.Projects.CreateService(projID, kubernetesServiceSpec)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 
-			clusterResize := &ClusterResizeOperation{NewWorkerCount: 3}
-			mockTask = createMockTask("RESIZE_CLUSTER", "COMPLETED")
+			serviceResize := &ServiceResizeOperation{NewWorkerCount: 3}
+			mockTask = createMockTask("RESIZE_SERVICE", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
-			task, err = client.Clusters.Resize(task.Entity.ID, clusterResize)
+			task, err = client.Services.Resize(task.Entity.ID, serviceResize)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 			Expect(task).ShouldNot(BeNil())
-			Expect(task.Operation).Should(Equal("RESIZE_CLUSTER"))
+			Expect(task.Operation).Should(Equal("RESIZE_SERVICE"))
 			Expect(task.State).Should(Equal("COMPLETED"))
 
-			mockCluster := &Cluster{Name: kubernetesClusterSpec.Name, WorkerCount: clusterResize.NewWorkerCount}
-			server.SetResponseJson(200, mockCluster)
-			cluster, err := client.Clusters.Get(task.Entity.ID)
+			mockService := &Service{Name: kubernetesServiceSpec.Name, WorkerCount: serviceResize.NewWorkerCount}
+			server.SetResponseJson(200, mockService)
+			service, err := client.Services.Get(task.Entity.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
-			Expect(cluster).ShouldNot(BeNil())
-			Expect(cluster.Name).Should(Equal(kubernetesClusterSpec.Name))
-			Expect(cluster.WorkerCount).Should(Equal(clusterResize.NewWorkerCount))
+			Expect(service).ShouldNot(BeNil())
+			Expect(service.Name).Should(Equal(kubernetesServiceSpec.Name))
+			Expect(service.WorkerCount).Should(Equal(serviceResize.NewWorkerCount))
 
-			mockTask = createMockTask("DELETE_CLUSTER", "COMPLETED")
+			mockTask = createMockTask("DELETE_SERVICE", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
-			task, err = client.Clusters.Delete(task.Entity.ID)
+			task, err = client.Services.Delete(task.Entity.ID)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 		})
 	})
 
-	Describe("Trigger cluster maintenance", func() {
-		It("Trigger cluster maintenance succeeds", func() {
-			mockTask := createMockTask("CREATE_CLUSTER", "COMPLETED")
+	Describe("Trigger service maintenance", func() {
+		It("Trigger service maintenance succeeds", func() {
+			mockTask := createMockTask("CREATE_SERVICE", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
-			task, err := client.Projects.CreateCluster(projID, kubernetesClusterSpec)
+			task, err := client.Projects.CreateService(projID, kubernetesServiceSpec)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 
-			mockTask = createMockTask("TRIGGER_CLUSTER_MAINTENANCE", "COMPLETED")
+			mockTask = createMockTask("TRIGGER_SERVICE_MAINTENANCE", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
-			task, err = client.Clusters.TriggerMaintenance(task.Entity.ID)
+			task, err = client.Services.TriggerMaintenance(task.Entity.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 			Expect(task).ShouldNot(BeNil())
-			Expect(task.Operation).Should(Equal("TRIGGER_CLUSTER_MAINTENANCE"))
+			Expect(task.Operation).Should(Equal("TRIGGER_SERVICE_MAINTENANCE"))
 			Expect(task.State).Should(Equal("COMPLETED"))
 
-			mockTask = createMockTask("DELETE_CLUSTER", "COMPLETED")
+			mockTask = createMockTask("DELETE_SERVICE", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
-			task, err = client.Clusters.Delete(task.Entity.ID)
+			task, err = client.Services.Delete(task.Entity.ID)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
