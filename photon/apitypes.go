@@ -611,6 +611,24 @@ type VirtualSubnets struct {
 	Items []VirtualSubnet `json:"items"`
 }
 
+// Represents a router
+type Router struct {
+    ID            string `json:"id"`
+    Kind          string `json:"kind"`
+    Name          string `json:"name"`
+    PrivateIpCidr string `json:"privateIpCidr"`
+}
+
+// Represents multiple routers returned by the API.
+type Routers struct {
+	Items []Router `json:"items"`
+}
+
+// Represents name that can be set for router
+type RouterSetNameOperation struct {
+	RouterName string `json:"name"`
+}
+
 // Creation spec for Service Configuration.
 type ServiceConfigurationSpec struct {
 	Type    string `json:"type"`
