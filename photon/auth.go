@@ -54,6 +54,21 @@ func (api *AuthAPI) GetTokensByPassword(username string, password string) (token
 	return api.toTokenOptions(tokenResponse), nil
 }
 
+// Gets Tokens from Windows logged in context
+func (api *AuthAPI) GetTokensFromWindowsLogInContext() (tokenOptions *TokenOptions, err error) {
+	oidcClient, err := api.buildOIDCClient()
+	if err != nil {
+		return
+	}
+
+	tokenResponse, err := oidcClient.GetTokensFromWindowsLogInContext()
+	if err != nil {
+		return
+	}
+
+	return api.toTokenOptions(tokenResponse), nil
+}
+
 // Gets tokens from refresh token.
 func (api *AuthAPI) GetTokensByRefreshToken(refreshtoken string) (tokenOptions *TokenOptions, err error) {
 	oidcClient, err := api.buildOIDCClient()
