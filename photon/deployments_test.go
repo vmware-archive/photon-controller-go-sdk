@@ -32,9 +32,7 @@ var _ = Describe("Deployment", func() {
 		deploymentSpec = &DeploymentCreateSpec{
 			ImageDatastores:         []string{randomString(10, "go-sdk-deployment-")},
 			UseImageDatastoreForVms: true,
-			Auth: &AuthInfo{
-				Enabled: false,
-			},
+			Auth: &AuthInfo{},
 		}
 	})
 
@@ -61,7 +59,7 @@ var _ = Describe("Deployment", func() {
 			mockDeployment := Deployment{
 				ImageDatastores:         deploymentSpec.ImageDatastores,
 				UseImageDatastoreForVms: deploymentSpec.UseImageDatastoreForVms,
-				Auth:                 &AuthInfo{Enabled: false},
+				Auth:                 &AuthInfo{},
 				NetworkConfiguration: &NetworkConfiguration{Enabled: false},
 			}
 			server.SetResponseJson(200, mockDeployment)
