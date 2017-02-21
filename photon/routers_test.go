@@ -45,4 +45,20 @@ var _ = Describe("Router", func() {
 			Expect(task.State).Should(Equal("COMPLETED"))
 		})
 	})
+
+	Describe("DeleteRouter", func() {
+		It("Delete router succeeds", func() {
+			mockTask := createMockTask("DELETE_ROUTER", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+
+			task, err := client.Routers.Delete("routerId")
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("DELETE_ROUTER"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+		})
+	})
 })
