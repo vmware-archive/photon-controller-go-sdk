@@ -678,6 +678,11 @@ type ServiceResizeOperation struct {
 	NewWorkerCount int `json:"newWorkerCount"`
 }
 
+// Represents service imageId that can be updated during change version
+type ServiceChangeVersionOperation struct {
+	NewImageID string `json:"newImageId"`
+}
+
 // Represents a security group
 type SecurityGroup struct {
 	Name      string `json:"name"`
