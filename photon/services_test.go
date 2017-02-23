@@ -234,4 +234,33 @@ var _ = Describe("Service", func() {
 			Expect(err).Should(BeNil())
 		})
 	})
+
+	Describe("Change version service", func() {
+		It("Resize succeeds", func() {
+			imageID := createImage(server, client)
+			mockTask := createMockTask("CREATE_SERVICE", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err := client.Projects.CreateService(projID, kubernetesServiceSpec)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+
+			changeVersion := &ServiceChangeVersionOperation{NewImageID: imageID}
+			mockTask = createMockTask("CHANGE_VERSION_SERVICE", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err = client.Services.ChangeVersion(task.Entity.ID, changeVersion)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("CHANGE_VERSION_SERVICE"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+
+			mockTask = createMockTask("DELETE_SERVICE", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err = client.Services.Delete(task.Entity.ID)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+		})
+	})
 })
