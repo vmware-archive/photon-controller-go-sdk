@@ -17,17 +17,85 @@ import (
 
 var _ = Describe("Router", func() {
 	var (
-		server *mocks.Server
-		client *Client
+		server           *mocks.Server
+		client           *Client
+		routerCreateSpec *RouterCreateSpec
+		tenantID         string
+		resName          string
+		projID           string
 	)
 
 	BeforeEach(func() {
 		server, client = testSetup()
+		tenantID = createTenant(server, client)
+		resName = createResTicket(server, client, tenantID)
+		projID = createProject(server, client, tenantID, resName)
+		routerCreateSpec = &RouterCreateSpec{Name: "router-1", PrivateIpCidr: "cidr1"}
 	})
 
 	AfterEach(func() {
-		cleanImages(client)
+		cleanTenants(client)
 		server.Close()
+	})
+
+	Describe("CreateDeleteRouter", func() {
+		It("Router create and delete succeeds", func() {
+			mockTask := createMockTask("CREATE_ROUTER", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+
+			task, err := client.Projects.CreateRouter(projID, routerCreateSpec)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("CREATE_ROUTER"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+
+			mockTask = createMockTask("DELETE_ROUTER", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err = client.Routers.Delete("routerId")
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("DELETE_ROUTER"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+		})
+	})
+
+	Describe("GetRouter", func() {
+		It("Get returns router", func() {
+			mockTask := createMockTask("CREATE_ROUTER", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+
+			task, err := client.Projects.CreateRouter(projID, routerCreateSpec)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("CREATE_ROUTER"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+
+			server.SetResponseJson(200, Router{Name: "router-1", PrivateIpCidr: "cidr1"})
+			router, err := client.Routers.Get(task.Entity.ID)
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(router).ShouldNot(BeNil())
+
+			var found bool
+			if router.Name == "router-1" && router.ID == task.Entity.ID {
+				found = true
+			}
+			Expect(found).Should(BeTrue())
+
+			mockTask = createMockTask("DELETE_ROUTER", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			_, err = client.Routers.Delete(task.Entity.ID)
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+		})
 	})
 
 	Describe("UpdateRouter", func() {
@@ -42,22 +110,6 @@ var _ = Describe("Router", func() {
 			Expect(err).Should(BeNil())
 			Expect(task).ShouldNot(BeNil())
 			Expect(task.Operation).Should(Equal("UPDATE_ROUTER"))
-			Expect(task.State).Should(Equal("COMPLETED"))
-		})
-	})
-
-	Describe("DeleteRouter", func() {
-		It("Delete router succeeds", func() {
-			mockTask := createMockTask("DELETE_ROUTER", "COMPLETED")
-			server.SetResponseJson(200, mockTask)
-
-			task, err := client.Routers.Delete("routerId")
-			task, err = client.Tasks.Wait(task.ID)
-			GinkgoT().Log(err)
-
-			Expect(err).Should(BeNil())
-			Expect(task).ShouldNot(BeNil())
-			Expect(task.Operation).Should(Equal("DELETE_ROUTER"))
 			Expect(task.State).Should(Equal("COMPLETED"))
 		})
 	})

@@ -623,6 +623,11 @@ type Routers struct {
 	Items []Router `json:"items"`
 }
 
+type RouterCreateSpec struct {
+	Name          string `json:"name"`
+	PrivateIpCidr string `json:"privateIpCidr"`
+}
+
 // Represents name that can be set for router
 type RouterUpdateSpec struct {
 	RouterName string `json:"name"`
