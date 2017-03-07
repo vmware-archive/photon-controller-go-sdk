@@ -23,7 +23,7 @@ var subnetUrl string = "/temp-subnets/"
 
 // Deletes a subnet with the specified ID.
 func (api *SubnetsAPI) Delete(id string) (task *Task, err error) {
-	res, err := api.client.restClient.Delete(api.client.Endpoint+subnetsUrl+id, api.client.options.TokenOptions)
+	res, err := api.client.restClient.Delete(api.client.Endpoint+subnetUrl+id, api.client.options.TokenOptions)
 	if err != nil {
 		return
 	}
