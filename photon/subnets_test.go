@@ -17,31 +17,86 @@ import (
 
 var _ = Describe("Subnet", func() {
 	var (
-		server *mocks.Server
-		client *Client
+		server           *mocks.Server
+		client           *Client
+		subnetCreateSpec *SubnetCreateSpec
+		tenantID         string
+		resName          string
+		projID           string
+		routerID         string
 	)
 
 	BeforeEach(func() {
 		server, client = testSetup()
+		tenantID = createTenant(server, client)
+		resName = createResTicket(server, client, tenantID)
+		projID = createProject(server, client, tenantID, resName)
+		routerID = createRouter(server, client, projID)
+		subnetCreateSpec = &SubnetCreateSpec{Name: "subnet-1", Description: "Test subnet", PrivateIpCidr: "cidr1"}
 	})
 
 	AfterEach(func() {
+		cleanTenants(client)
 		server.Close()
 	})
 
-	Describe("DeleteSubnet", func() {
-		It("Subnet delete succeeds", func() {
-			mockTask := createMockTask("DELETE_SUBNET", "COMPLETED")
+	Describe("CreateDeleteSubnet", func() {
+		It("Subnet create and delete succeeds", func() {
+			mockTask := createMockTask("CREATE_SUBNET", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 
-			task, err := client.Subnets.Delete("subnet-Id")
+			task, err := client.Routers.CreateSubnet(routerID, subnetCreateSpec)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("CREATE_SUBNET"))
+			Expect(task.State).Should(Equal("COMPLETED"))
 
+			mockTask = createMockTask("DELETE_SUBNET", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err = client.Subnets.Delete("subnet-Id")
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 			Expect(task).ShouldNot(BeNil())
 			Expect(task.Operation).Should(Equal("DELETE_SUBNET"))
 			Expect(task.State).Should(Equal("COMPLETED"))
+		})
+	})
+
+	Describe("GetSubnet", func() {
+		It("Get returns subnet", func() {
+			mockTask := createMockTask("CREATE_SUBNET", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+
+			task, err := client.Routers.CreateSubnet(routerID, subnetCreateSpec)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("CREATE_SUBNET"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+
+			server.SetResponseJson(200, Subnet{Name: "subnet-1", Description: "Test subnet", PrivateIpCidr: "cidr1"})
+			subnet, err := client.Subnets.Get(task.Entity.ID)
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(subnet).ShouldNot(BeNil())
+
+			var found bool
+			if subnet.Name == "subnet-1" && subnet.ID == task.Entity.ID {
+				found = true
+			}
+			Expect(found).Should(BeTrue())
+
+			mockTask = createMockTask("DELETE_SUBNET", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			_, err = client.Subnets.Delete(task.Entity.ID)
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
 		})
 	})
 

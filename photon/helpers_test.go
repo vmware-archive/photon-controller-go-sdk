@@ -83,6 +83,19 @@ func createProject(server *mocks.Server, client *Client, tenantID string, resNam
 	return task.Entity.ID
 }
 
+func createRouter(server *mocks.Server, client *Client, projID string) string {
+	mockTask := createMockTask("CREATE_ROUTER", "COMPLETED")
+	server.SetResponseJson(200, mockTask)
+	routerSpec := &RouterCreateSpec{
+		Name:          randomString(10, "go-sdk-project-"),
+		PrivateIpCidr: randomString(10, "go-sdk-project-cidr-"),
+	}
+	task, err := client.Projects.CreateRouter(projID, routerSpec)
+	GinkgoT().Log(err)
+	Expect(err).Should(BeNil())
+	return task.Entity.ID
+}
+
 // Checks the projects for the tenant and deletes ones created by go-sdk
 func cleanProjects(client *Client, tenantID string) {
 	projList, err := client.Tenants.GetProjects(tenantID, &ProjectGetOptions{})

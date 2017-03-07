@@ -776,6 +776,13 @@ type Subnets struct {
 	Items []Subnet `json:"items"`
 }
 
+// Creation spec for subnets.
+type SubnetCreateSpec struct {
+	Name          string `json:"name"`
+	Description   string `json:"description"`
+	PrivateIpCidr string `json:"privateIpCidr"`
+}
+
 // Represents name that can be set for subnet
 type SubnetUpdateSpec struct {
 	SubnetName string `json:"name"`
