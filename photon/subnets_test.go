@@ -29,6 +29,22 @@ var _ = Describe("Subnet", func() {
 		server.Close()
 	})
 
+	Describe("DeleteSubnet", func() {
+		It("Subnet delete succeeds", func() {
+			mockTask := createMockTask("DELETE_SUBNET", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+
+			task, err := client.Subnets.Delete("subnet-Id")
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("DELETE_SUBNET"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+		})
+	})
+
 	Describe("UpdateSubnet", func() {
 		It("update subnet's name", func() {
 			mockTask := createMockTask("UPDATE_SUBNET", "COMPLETED")
