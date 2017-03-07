@@ -67,9 +67,9 @@ func (api *NetworksAPI) Get(id string) (network *Network, err error) {
 	if err != nil {
 		return
 	}
-	var result Network
-	err = json.NewDecoder(res.Body).Decode(&result)
-	return &result, nil
+	network = &Network{}
+	err = json.NewDecoder(res.Body).Decode(network)
+	return
 }
 
 // Returns all networks
@@ -79,7 +79,9 @@ func (api *NetworksAPI) GetAll(options *NetworkGetOptions) (result *Networks, er
 		uri += getQueryString(options)
 	}
 	res, err := api.client.restClient.GetList(api.client.Endpoint, uri, api.client.options.TokenOptions)
-
+	if err != nil {
+		return
+	}
 	result = &Networks{}
 	err = json.Unmarshal(res, result)
 	return

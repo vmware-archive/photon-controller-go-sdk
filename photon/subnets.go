@@ -45,9 +45,9 @@ func (api *SubnetsAPI) Get(id string) (subnet *Subnet, err error) {
 	if err != nil {
 		return
 	}
-	var result Subnet
-	err = json.NewDecoder(res.Body).Decode(&result)
-	return &result, nil
+	subnet = &Subnet{}
+	err = json.NewDecoder(res.Body).Decode(subnet)
+	return
 }
 
 // Updates subnet's attributes.
