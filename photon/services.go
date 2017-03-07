@@ -61,9 +61,9 @@ func (api *ServicesAPI) Get(id string) (service *Service, err error) {
 	if err != nil {
 		return
 	}
-	var result Service
-	err = json.NewDecoder(res.Body).Decode(&result)
-	return &result, nil
+	service = &Service{}
+	err = json.NewDecoder(res.Body).Decode(service)
+	return
 }
 
 // Gets vms for service with the specified ID.

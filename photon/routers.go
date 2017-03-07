@@ -32,9 +32,9 @@ func (api *RoutersAPI) Get(id string) (router *Router, err error) {
 	if err != nil {
 		return
 	}
-	var result Router
-	err = json.NewDecoder(res.Body).Decode(&result)
-	return &result, nil
+	router = &Router{}
+	err = json.NewDecoder(res.Body).Decode(router)
+	return
 }
 
 // Updates router's attributes.

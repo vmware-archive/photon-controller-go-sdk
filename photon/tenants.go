@@ -172,6 +172,9 @@ func (api *TenantsAPI) Get(identity string) (tenant *Tenant, err error) {
 	}
 	defer res.Body.Close()
 	res, err = getError(res)
+	if err != nil {
+		return
+	}
 	tenant = &Tenant{}
 	if res != nil {
 		err = json.NewDecoder(res.Body).Decode(tenant)

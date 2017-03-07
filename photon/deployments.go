@@ -113,9 +113,9 @@ func (api *DeploymentsAPI) Get(id string) (deployment *Deployment, err error) {
 	if err != nil {
 		return
 	}
-	var result Deployment
-	err = json.NewDecoder(res.Body).Decode(&result)
-	return &result, nil
+	deployment = &Deployment{}
+	err = json.NewDecoder(res.Body).Decode(deployment)
+	return
 }
 
 // Gets all hosts with the specified deployment ID.

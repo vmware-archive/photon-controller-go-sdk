@@ -78,9 +78,9 @@ func (api *HostsAPI) Get(id string) (host *Host, err error) {
 	if err != nil {
 		return
 	}
-	var result Host
-	err = json.NewDecoder(res.Body).Decode(&result)
-	return &result, nil
+	host = &Host{}
+	err = json.NewDecoder(res.Body).Decode(host)
+	return
 }
 
 // Sets host's availability zone.
