@@ -19,7 +19,7 @@ type ServicesAPI struct {
 	client *Client
 }
 
-var serviceUrl = "/services/"
+var serviceUrl = rootUrl + "/services/"
 
 // Extended Properties
 const (

@@ -25,7 +25,7 @@ type ImageGetOptions struct {
 	Name string `urlParam:"name"`
 }
 
-var imageUrl string = "/images"
+var imageUrl string = rootUrl + "/images"
 
 // Uploads a new image, reading from the specified image path.
 // If options is nil, default options are used.

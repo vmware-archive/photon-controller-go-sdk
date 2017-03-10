@@ -52,6 +52,9 @@ type bodyRewinder func() io.Reader
 
 const appJson string = "application/json"
 
+// Root URL specifies the API version.
+const rootUrl string = "/v1"
+
 // From https://golang.org/src/mime/multipart/writer.go
 var quoteEscaper = strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
 
