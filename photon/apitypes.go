@@ -668,6 +668,7 @@ type Service struct {
 	State              string            `json:"state"`
 	ID                 string            `json:"id"`
 	Type               string            `json:"type"`
+	ImageID            string            `json:"imageId"`
 	ProjectID          string            `json:"projectID,omitempty"`
 	WorkerCount        int               `json:"workerCount"`
 	SelfLink           string            `json:"selfLink,omitempty"`
