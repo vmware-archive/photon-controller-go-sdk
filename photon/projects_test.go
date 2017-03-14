@@ -211,6 +211,48 @@ var _ = Describe("Project", func() {
 		})
 	})
 
+	Describe("GetProjectRouters", func() {
+		It("GetAll returns router", func() {
+			mockTask := createMockTask("CREATE_ROUTER", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			routerSpec := &RouterCreateSpec{
+				Name:         "router_name",
+				PrivateIpCidr	"192.168.0.1/24",
+			}
+
+			task, err := client.Projects.CreateRouter(projID, routerSpec)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+
+			rourterMock := Router{
+				Name:       		routerSpec.Name,
+				PrivateIpCidr:  routerSpec.PrivateIpCidr,
+			}
+			server.SetResponseJson(200, &RouterList{[]Router{routerMock}})
+			rourterList, err := client.Projects.GetRouters(projectID, &RouterGetOptions)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(rourterList).ShouldNot(BeNil())
+
+			var found bool
+			for _, router := range rourterList.Items {
+				if router.Name == routerSpec.Name && router.ID == task.Entity.ID {
+					found = true
+					break
+				}
+			}
+			Expect(found).Should(BeTrue())
+
+			mockTask = createMockTask("DELETE_ROUTER", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err = client.Routers.Delete(task.Entity.ID)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+		})
+	})
+
 	Describe("GetProjectServices", func() {
 		It("GetAll returns service", func() {
 			if isIntegrationTest() {
