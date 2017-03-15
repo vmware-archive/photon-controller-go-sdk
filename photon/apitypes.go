@@ -654,7 +654,7 @@ type ServiceCreateSpec struct {
 	MasterVmFlavor     string            `json:"masterVmFlavor,omitempty"`
 	WorkerVmFlavor     string            `json:"workerVmFlavor,omitempty"`
 	DiskFlavor         string            `json:"diskFlavor,omitempty"`
-	NetworkID          string            `json:"vmNetworkId,omitempty"`
+	SubnetId           string            `json:"subnetId,omitempty"`
 	ImageID            string            `json:"imageId,omitempty"`
 	WorkerCount        int               `json:"workerCount"`
 	BatchSizeWorker    int               `json:"workerBatchExpansionSize,omitempty"`
