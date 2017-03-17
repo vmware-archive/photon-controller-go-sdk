@@ -57,7 +57,7 @@ func (api *SubnetsAPI) Update(id string, subnetSpec *SubnetUpdateSpec) (task *Ta
 		return
 	}
 
-	res, err := api.client.restClient.Put(
+	res, err := api.client.restClient.Patch(
 		api.client.Endpoint+subnetUrl+id,
 		"application/json",
 		bytes.NewReader(body),
