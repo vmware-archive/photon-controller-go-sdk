@@ -536,7 +536,6 @@ type NetworkConfigurationCreateSpec struct {
 	HostUplinkPnic  string   `json:"networkHostUplinkPnic,omitempty"`
 	IpRange         string   `json:"ipRange,omitempty"`
 	ExternalIpRange *IpRange `json:"externalIpRange,omitempty"`
-	DhcpServers     []string `json:"dhcpServers,omitempty"`
 }
 
 // Represents network configuration.
@@ -552,7 +551,6 @@ type NetworkConfiguration struct {
 	IpRange         string   `json:"ipRange,omitempty"`
 	FloatingIpRange *IpRange `json:"floatingIpRange,omitempty"`
 	SnatIp          string   `json:"snatIp,omitempty"`
-	DhcpServers     []string `json:"dhcpServers,omitempty"`
 }
 
 // Creation spec for networks.
