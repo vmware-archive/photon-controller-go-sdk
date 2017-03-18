@@ -143,6 +143,13 @@ type QuotaLineItem struct {
 	Key   string  `json:"key"`
 }
 
+// The QuotaLineItem with limit and usage in one place.
+type QuotaStatusLineItem struct {
+	Unit  string  `json:"unit"`
+	Limit float64 `json:"limit"`
+	Usage float64 `json:"usage"`
+}
+
 // Creation spec for locality.
 type LocalitySpec struct {
 	Kind string `json:"kind"`
@@ -185,6 +192,7 @@ type ProjectCreateSpec struct {
 	Name                       string                    `json:"name"`
 	SecurityGroups             []string                  `json:"securityGroups,omitempty"`
 	DefaultRouterPrivateIpCidr string                    `json:"defaultRouterPrivateIpCidr,omitempty"`
+	ResourceQuota              Quota                     `json:"quota,omitempty"`
 }
 
 // Represents multiple projects returned by the API.
@@ -201,6 +209,7 @@ type ProjectCompact struct {
 	Tags           []string        `json:"tags"`
 	SelfLink       string          `json:"selfLink"`
 	SecurityGroups []SecurityGroup `json:"securityGroups"`
+	ResourceQuota  Quota           `json:"quota,omitempty"`
 }
 
 type ProjectTicket struct {
@@ -264,6 +273,7 @@ type Tenant struct {
 	SelfLink        string          `json:"selfLink"`
 	Tags            []string        `json:"tags"`
 	SecurityGroups  []SecurityGroup `json:"securityGroups"`
+	ResourceQuota   Quota           `json:"quota,omitempty"`
 }
 
 // Represents multiple tenants returned by the API.
@@ -275,6 +285,7 @@ type Tenants struct {
 type TenantCreateSpec struct {
 	Name           string   `json:"name"`
 	SecurityGroups []string `json:"securityGroups,omitempty"`
+	ResourceQuota  Quota    `json:"quota,omitempty"`
 }
 
 // Creation spec for resource tickets.
@@ -305,6 +316,14 @@ type ResourceTicketReservation struct {
 	Name   string          `json:"name"`
 	Limits []QuotaLineItem `json:"limits"`
 }
+
+// Represents the quota
+type Quota struct {
+	QuotaLineItems map[string]QuotaStatusLineItem `json:"quotaItems"`
+}
+
+// QuotaSpec is used when set/update/excluding QuotaLineItems from existing Quota
+type QuotaSpec map[string]QuotaStatusLineItem
 
 // Creation spec for VMs.
 type VmCreateSpec struct {
