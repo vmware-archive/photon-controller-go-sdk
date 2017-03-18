@@ -1,4 +1,4 @@
-// Copyright (c) 2016 VMware, Inc. All Rights Reserved.
+// Copyright (c) 2017 VMware, Inc. All Rights Reserved.
 //
 // This product is licensed to you under the Apache License, Version 2.0 (the "License").
 // You may not use this product except in compliance with the License.
@@ -11,6 +11,7 @@ package photon
 
 import (
 	"fmt"
+	"reflect"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -21,6 +22,7 @@ var _ = Describe("Tenant", func() {
 	var (
 		server *mocks.Server
 		client *Client
+		tenantID string
 	)
 
 	BeforeEach(func() {
@@ -231,6 +233,89 @@ var _ = Describe("Tenant", func() {
 		})
 
 	})
+
+	Describe("TenantQuota", func() {
+
+		It("Get Tenant Quota succeeds", func() {
+			mockQuota := createMockQuota()
+
+			// Create Tenant
+			tenantID = createTenant(server, client)
+
+			// Get current Quota
+			server.SetResponseJson(200, mockQuota)
+			quota, err := client.Tenants.GetQuota(tenantID)
+
+			GinkgoT().Log(err)
+			eq := reflect.DeepEqual(quota.QuotaLineItems, mockQuota.QuotaLineItems)
+			Expect(eq).Should(Equal(true))
+		})
+
+		It("Set Tenant Quota succeeds", func() {
+			mockQuotaSpec := &QuotaSpec {
+				"vmCpu"        : {Unit: "COUNT", Limit: 10,  Usage: 0},
+				"vmMemory"     : {Unit: "GB",    Limit: 18,  Usage: 0},
+				"diskCapacity" : {Unit: "GB",    Limit: 100, Usage: 0},
+			}
+
+			// Create Tenant
+			tenantID = createTenant(server, client)
+
+			mockTask := createMockTask("SET_QUOTA", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+
+			task, err := client.Tenants.SetQuota(tenantID, mockQuotaSpec)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("SET_QUOTA"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+		})
+
+		It("Update Tenant Quota succeeds", func() {
+			mockQuotaSpec := &QuotaSpec {
+				"vmCpu"        : {Unit: "COUNT", Limit: 30,  Usage: 0},
+				"vmMemory"     : {Unit: "GB",    Limit: 40,  Usage: 0},
+				"diskCapacity" : {Unit: "GB",    Limit: 150, Usage: 0},
+			}
+
+			// Create Tenant
+			tenantID = createTenant(server, client)
+
+			mockTask := createMockTask("UPDATE_QUOTA", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+
+			task, err := client.Tenants.UpdateQuota(tenantID, mockQuotaSpec)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("UPDATE_QUOTA"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+		})
+
+		It("Exclude Tenant Quota Items succeeds", func() {
+			mockQuotaSpec := &QuotaSpec {
+				"vmCpu2"        : {Unit: "COUNT", Limit: 10,  Usage: 0},
+				"vmMemory3"     : {Unit: "GB",    Limit: 18,  Usage: 0},
+			}
+
+			// Create Tenant
+			tenantID = createTenant(server, client)
+
+			mockTask := createMockTask("DELETE_QUOTA", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+
+			task, err := client.Tenants.ExcludeQuota(tenantID, mockQuotaSpec)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("DELETE_QUOTA"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+		})
+	})
 })
 
 var _ = Describe("ResourceTicket", func() {
@@ -312,7 +397,7 @@ var _ = Describe("Project", func() {
 			projSpec := &ProjectCreateSpec{
 				ResourceTicket: ResourceTicketReservation{
 					resName,
-					[]QuotaLineItem{QuotaLineItem{"GB", 2, "vm.memory"}},
+					[]QuotaLineItem{{"GB", 2, "vm.memory"}},
 				},
 				Name: randomString(10, "go-sdk-project-"),
 			}

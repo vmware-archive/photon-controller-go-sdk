@@ -15,6 +15,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/vmware/photon-controller-go-sdk/photon/internal/mocks"
+	"reflect"
 )
 
 var _ = Describe("Project", func() {
@@ -324,6 +325,77 @@ var _ = Describe("Project", func() {
 			Expect(err).Should(BeNil())
 			fmt.Fprintf(GinkgoWriter, "Got project: %+v", project)
 			Expect(expected.SecurityGroups).Should(Equal(project.SecurityGroups))
+		})
+	})
+
+	Describe("ProjectQuota", func() {
+
+		It("Get Project Quota succeeds", func() {
+			mockQuota := createMockQuota()
+
+			// Get current Quota
+			server.SetResponseJson(200, mockQuota)
+			quota, err := client.Projects.GetQuota(tenantID)
+
+			GinkgoT().Log(err)
+			eq := reflect.DeepEqual(quota.QuotaLineItems, mockQuota.QuotaLineItems)
+			Expect(eq).Should(Equal(true))
+		})
+
+		It("Set Project Quota succeeds", func() {
+			mockQuotaSpec := &QuotaSpec {
+				"vmCpu"        : {Unit: "COUNT", Limit: 10,  Usage: 0},
+				"vmMemory"     : {Unit: "GB",    Limit: 18,  Usage: 0},
+				"diskCapacity" : {Unit: "GB",    Limit: 100, Usage: 0},
+			}
+
+			mockTask := createMockTask("SET_QUOTA", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+
+			task, err := client.Projects.SetQuota(tenantID, mockQuotaSpec)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("SET_QUOTA"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+		})
+
+		It("Update Project Quota succeeds", func() {
+			mockQuotaSpec := &QuotaSpec {
+				"vmCpu"        : {Unit: "COUNT", Limit: 30,  Usage: 0},
+				"vmMemory"     : {Unit: "GB",    Limit: 40,  Usage: 0},
+				"diskCapacity" : {Unit: "GB",    Limit: 150, Usage: 0},
+			}
+
+			mockTask := createMockTask("UPDATE_QUOTA", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+
+			task, err := client.Projects.UpdateQuota(tenantID, mockQuotaSpec)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("UPDATE_QUOTA"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+		})
+
+		It("Exclude Project Quota Items succeeds", func() {
+			mockQuotaSpec := &QuotaSpec {
+				"vmCpu2"        : {Unit: "COUNT", Limit: 10,  Usage: 0},
+				"vmMemory3"     : {Unit: "GB",    Limit: 18,  Usage: 0},
+			}
+
+			mockTask := createMockTask("DELETE_QUOTA", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+
+			task, err := client.Projects.ExcludeQuota(tenantID, mockQuotaSpec)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("DELETE_QUOTA"))
+			Expect(task.State).Should(Equal("COMPLETED"))
 		})
 	})
 

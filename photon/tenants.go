@@ -13,6 +13,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 )
 
 // Contains functionality for tenants API.
@@ -82,7 +83,7 @@ func (api *TenantsAPI) CreateResourceTicket(tenantId string, spec *ResourceTicke
 		return
 	}
 	res, err := api.client.restClient.Post(
-		api.client.Endpoint+tenantUrl+"/"+tenantId+"/resource-tickets",
+		api.client.Endpoint + tenantUrl + "/" + tenantId + "/resource-tickets",
 		"application/json",
 		bytes.NewReader(body),
 		api.client.options.TokenOptions)
@@ -118,7 +119,7 @@ func (api *TenantsAPI) CreateProject(tenantId string, spec *ProjectCreateSpec) (
 		return
 	}
 	res, err := api.client.restClient.Post(
-		api.client.Endpoint+tenantUrl+"/"+tenantId+"/projects",
+		api.client.Endpoint + tenantUrl + "/" + tenantId + "/projects",
 		"application/json",
 		bytes.NewReader(body),
 		api.client.options.TokenOptions)
@@ -210,4 +211,60 @@ func (api *TenantsAPI) SetSecurityGroups(id string, securityGroups *SecurityGrou
 
 func (api *TenantsAPI) getEntityUrl(id string) (url string) {
 	return api.client.Endpoint + tenantUrl + "/" + id
+}
+
+// Tenant Quota API.
+func (api *TenantsAPI) GetQuota(tenantId string) (quota *Quota, err error) {
+	uri := api.client.Endpoint + tenantUrl + "/" + tenantId + "/quota"
+	res, err := api.client.restClient.Get(uri, api.client.options.TokenOptions)
+
+	if err != nil {
+		return
+	}
+
+	defer res.Body.Close()
+	res, err = getError(res)
+	if err != nil {
+		return
+	}
+
+	body, err := ioutil.ReadAll(res.Body)
+
+	quota = &Quota{}
+	err = json.Unmarshal(body, quota)
+	return
+}
+
+func (api *TenantsAPI) SetQuota(tenantId string, spec *QuotaSpec) (task *Task, err error) {
+	task, err = api.ModifyQuota("PUT", tenantId, spec)
+	return
+}
+
+func (api *TenantsAPI) UpdateQuota(tenantId string, spec *QuotaSpec) (task *Task, err error) {
+	task, err = api.ModifyQuota("PATCH", tenantId, spec)
+	return
+}
+
+func (api *TenantsAPI) ExcludeQuota(tenantId string, spec *QuotaSpec) (task *Task, err error) {
+	task, err = api.ModifyQuota("DELETE", tenantId, spec)
+	return
+}
+
+func (api *TenantsAPI) ModifyQuota(method string, tenantId string, spec *QuotaSpec) (task *Task, err error) {
+	body, err := json.Marshal(spec)
+	if err != nil {
+		return
+	}
+	res, err := api.client.restClient.SendRequestCommon(
+		method,
+		api.client.Endpoint+tenantUrl+"/"+tenantId+"/quota",
+		"application/json",
+		bytes.NewReader(body),
+		api.client.options.TokenOptions)
+	if err != nil {
+		return
+	}
+	defer res.Body.Close()
+	task, err = getTask(getError(res))
+	return
 }

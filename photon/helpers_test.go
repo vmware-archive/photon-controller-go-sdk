@@ -26,10 +26,25 @@ func hasStep(task *Task, operation, state string) bool {
 	return false
 }
 
+// create mock quota instance
+func createMockQuota() Quota {
+	mockQuota := Quota {
+		QuotaLineItems: map[string]QuotaStatusLineItem {
+			"vmCpu"        : {Unit: "COUNT", Limit: 100,  Usage: 0},
+			"vmMemory"     : {Unit: "GB",    Limit: 180,  Usage: 0},
+			"diskCapacity" : {Unit: "GB",    Limit: 1000, Usage: 0},
+		},
+	}
+	return mockQuota
+}
+
 func createTenant(server *mocks.Server, client *Client) string {
 	mockTask := createMockTask("CREATE_TENANT", "COMPLETED")
 	server.SetResponseJson(200, mockTask)
-	tenantSpec := &TenantCreateSpec{Name: randomString(10, "go-sdk-tenant-")}
+	tenantSpec := &TenantCreateSpec{
+		Name:           randomString(10, "go-sdk-tenant-"),
+		ResourceQuota:  createMockQuota(),
+	}
 	task, err := client.Tenants.Create(tenantSpec)
 	GinkgoT().Log(err)
 	Expect(err).Should(BeNil())
@@ -76,6 +91,7 @@ func createProject(server *mocks.Server, client *Client, tenantID string, resNam
 			[]QuotaLineItem{QuotaLineItem{"GB", 2, "vm.memory"}},
 		},
 		Name: randomString(10, "go-sdk-project-"),
+		ResourceQuota:  createMockQuota(),
 	}
 	task, err := client.Tenants.CreateProject(tenantID, projSpec)
 	GinkgoT().Log(err)

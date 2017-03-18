@@ -12,6 +12,7 @@ package photon
 import (
 	"bytes"
 	"encoding/json"
+	"io/ioutil"
 )
 
 // Contains functionality for projects API.
@@ -226,5 +227,63 @@ func (api *ProjectsAPI) GetRouters(projectID string, options *RouterGetOptions) 
 
 	result = &Routers{}
 	err = json.Unmarshal(res, result)
+	return
+}
+
+
+// Project Quota API.
+func (api *ProjectsAPI) GetQuota(projectId string) (quota *Quota, err error) {
+	uri := api.client.Endpoint + projectUrl + "/" + projectId + "/quota"
+	res, err := api.client.restClient.Get(uri, api.client.options.TokenOptions)
+
+	if err != nil {
+		return
+	}
+
+	defer res.Body.Close()
+	res, err = getError(res)
+	if err != nil {
+		return
+	}
+
+	body, err := ioutil.ReadAll(res.Body)
+
+	quota = &Quota{}
+	err = json.Unmarshal(body, quota)
+	return
+	return
+}
+
+func (api *ProjectsAPI) SetQuota(projectId string, spec *QuotaSpec) (task *Task, err error) {
+	task, err = api.ModifyQuota("PUT", projectId, spec)
+	return
+}
+
+func (api *ProjectsAPI) UpdateQuota(projectId string, spec *QuotaSpec) (task *Task, err error) {
+	task, err = api.ModifyQuota("PATCH", projectId, spec)
+	return
+}
+
+func (api *ProjectsAPI) ExcludeQuota(projectId string, spec *QuotaSpec) (task *Task, err error) {
+	task, err = api.ModifyQuota("DELETE", projectId, spec)
+	return
+}
+
+func (api *ProjectsAPI) ModifyQuota(method string, projectId string, spec *QuotaSpec) (task *Task, err error) {
+	body, err := json.Marshal(spec)
+	if err != nil {
+		return
+	}
+	res, err := api.client.restClient.SendRequestCommon(
+		method,
+		api.client.Endpoint+projectUrl+projectId+"/quota",
+		"application/json",
+		bytes.NewReader(body),
+		api.client.options.TokenOptions)
+	if err != nil {
+		return
+	}
+	defer res.Body.Close()
+	task, err = getTask(getError(res))
 	return
 }
