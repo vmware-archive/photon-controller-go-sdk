@@ -107,7 +107,7 @@ func (api *SystemAPI) SetSecurityGroups(securityGroups *SecurityGroupsSpec) (tas
 	if err != nil {
 		return
 	}
-	url := api.getEndpointUrl("iam")
+	url := api.getEndpointUrl("set-security-group")
 	res, err := api.client.restClient.Post(
 		url,
 		"application/json",
