@@ -70,3 +70,18 @@ func (api *SubnetsAPI) Update(id string, subnetSpec *SubnetUpdateSpec) (task *Ta
 	task, err = getTask(getError(res))
 	return
 }
+
+// Sets default subnet.
+func (api *SubnetsAPI) SetDefault(id string) (task *Task, err error) {
+	res, err := api.client.restClient.Post(
+		api.client.Endpoint+subnetUrl+id+"/set_default",
+		"application/json",
+		bytes.NewReader([]byte("")),
+		api.client.options.TokenOptions)
+	if err != nil {
+		return
+	}
+	defer res.Body.Close()
+	task, err = getTask(getError(res))
+	return
+}

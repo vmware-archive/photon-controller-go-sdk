@@ -612,6 +612,7 @@ type Router struct {
 	Kind          string `json:"kind"`
 	Name          string `json:"name"`
 	PrivateIpCidr string `json:"privateIpCidr"`
+	IsDefault     bool   `json:"isDefault"`
 }
 
 // Represents multiple routers returned by the API.
@@ -766,6 +767,7 @@ type Subnet struct {
 	PrivateIpCidr string            `json:"privateIpCidr"`
 	ReservedIps   map[string]string `json:"reservedIps"`
 	State         string            `json:"state"`
+	IsDefault     bool              `json:"isDefault"`
 }
 
 // Represents multiple subnets returned by the API.

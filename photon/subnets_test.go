@@ -115,4 +115,18 @@ var _ = Describe("Subnet", func() {
 			Expect(task.State).Should(Equal("COMPLETED"))
 		})
 	})
+
+	Describe("SetDefaultSubnet", func() {
+		It("Set default subnet succeeds", func() {
+			mockTask := createMockTask("SET_DEFAULT_SUBNET", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+
+			task, err := client.Networks.SetDefault("subnetId")
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("SET_DEFAULT_SUBNET"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+		})
+	})
 })
