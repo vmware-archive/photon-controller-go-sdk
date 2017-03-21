@@ -33,6 +33,12 @@ type MockAvailZonesPage struct {
 	PreviousPageLink string             `json:"previousPageLink"`
 }
 
+type MockZonesPage struct {
+	Items            []Zone 	    `json:"items"`
+	NextPageLink     string             `json:"nextPageLink"`
+	PreviousPageLink string             `json:"previousPageLink"`
+}
+
 type MockProjectsPage struct {
 	Items            []ProjectCompact `json:"items"`
 	NextPageLink     string           `json:"nextPageLink"`
@@ -148,6 +154,16 @@ func createMockAvailZonesPage(availZones ...AvailabilityZone) *MockAvailZonesPag
 	}
 
 	return &availZonesPage
+}
+
+func createMockZonesPage(zones ...Zone) *MockZonesPage {
+	zonesPage := MockZonesPage{
+		Items:            zones,
+		NextPageLink:     "",
+		PreviousPageLink: "",
+	}
+
+	return &zonesPage
 }
 
 func createMockProjectsPage(projects ...ProjectCompact) *MockProjectsPage {
