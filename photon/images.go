@@ -159,7 +159,7 @@ func (api *ImagesAPI) ModifyIam(imageID string, policyDelta *PolicyDelta) (task 
 	if err != nil {
 		return
 	}
-	res, err := api.client.restClient.Put(
+	res, err := api.client.restClient.Patch(
 		api.client.Endpoint+imageUrl+"/"+imageID+"/iam",
 		"application/json",
 		bytes.NewReader(body),
