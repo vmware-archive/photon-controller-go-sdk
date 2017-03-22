@@ -57,6 +57,9 @@ func cleanTenants(client *Client) {
 	if err != nil {
 		GinkgoT().Log(err)
 	}
+	if tenants == nil {
+		return
+	}
 	for _, tenant := range tenants.Items {
 		if strings.HasPrefix(tenant.Name, "go-sdk-tenant-") {
 			cleanProjects(client, tenant.ID)
@@ -117,6 +120,9 @@ func cleanProjects(client *Client, tenantID string) {
 	projList, err := client.Tenants.GetProjects(tenantID, &ProjectGetOptions{})
 	if err != nil {
 		GinkgoT().Log(err)
+	}
+	if projList == nil {
+		return
 	}
 	for _, proj := range projList.Items {
 		if strings.HasPrefix(proj.Name, "go-sdk-project-") {

@@ -229,7 +229,7 @@ var _ = Describe("Image", func() {
 			mockTask := createMockTask("SET_IAM_POLICY", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 			var policy []PolicyEntry
-			policy = []PolicyEntry{{Principal: "joe@coke.com", Roles: []string{"owner"}}}
+			policy = []PolicyEntry{{Principal: "joe@photon.local", Roles: []string{"owner"}}}
 			task, err := client.Images.SetIam("imageId", &policy)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
@@ -243,7 +243,7 @@ var _ = Describe("Image", func() {
 			mockTask := createMockTask("MODIFY_IAM_POLICY", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 			var delta PolicyDelta
-			delta = PolicyDelta{Principal: "joe@coke.com", Action: "ADD", Role: "owner"}
+			delta = PolicyDelta{Principal: "joe@photon.local", Action: "ADD", Role: "owner"}
 			task, err := client.Images.ModifyIam("imageId", &delta)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
@@ -255,7 +255,7 @@ var _ = Describe("Image", func() {
 
 		It("Get IAM Policy succeeds", func() {
 			var policy []PolicyEntry
-			policy = []PolicyEntry{{Principal: "joe@coke.com", Roles: []string{"owner"}}}
+			policy = []PolicyEntry{{Principal: "joe@photon.local", Roles: []string{"owner"}}}
 			server.SetResponseJson(200, policy)
 			response, err := client.Images.GetIam("imageId")
 

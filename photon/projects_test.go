@@ -398,5 +398,68 @@ var _ = Describe("Project", func() {
 			Expect(task.State).Should(Equal("COMPLETED"))
 		})
 	})
+})
 
+var _ = Describe("IAM", func() {
+	var (
+		server   *mocks.Server
+		client   *Client
+		tenantID string
+		resName  string
+		projID   string
+	)
+
+	BeforeEach(func() {
+		server, client = testSetup()
+		tenantID = createTenant(server, client)
+		resName = createResTicket(server, client, tenantID)
+		projID = createProject(server, client, tenantID, resName)
+	})
+
+	AfterEach(func() {
+		cleanTenants(client)
+		server.Close()
+	})
+
+	Describe("ManageProjectIamPolicy", func() {
+		It("Set IAM Policy succeeds", func() {
+			mockTask := createMockTask("SET_IAM_POLICY", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			var policy []PolicyEntry
+			policy = []PolicyEntry{{Principal: "joe@photon.local", Roles: []string{"owner"}}}
+			task, err := client.Projects.SetIam(projID, &policy)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("SET_IAM_POLICY"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+		})
+
+		It("Modify IAM Policy succeeds", func() {
+			mockTask := createMockTask("MODIFY_IAM_POLICY", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			var delta PolicyDelta
+			delta = PolicyDelta{Principal: "joe@photon.local", Action: "ADD", Role: "owner"}
+			task, err := client.Projects.ModifyIam(projID, &delta)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("MODIFY_IAM_POLICY"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+		})
+
+		It("Get IAM Policy succeeds", func() {
+			var policy []PolicyEntry
+			policy = []PolicyEntry{{Principal: "joe@photon.local", Roles: []string{"owner"}}}
+			server.SetResponseJson(200, policy)
+			response, err := client.Projects.GetIam(projID)
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect((*response)[0].Principal).Should(Equal(policy[0].Principal))
+			Expect((*response)[0].Roles).Should(Equal(policy[0].Roles))
+		})
+	})
 })
