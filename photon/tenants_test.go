@@ -484,5 +484,61 @@ var _ = Describe("Project", func() {
 			Expect(task.State).Should(Equal("COMPLETED"))
 		})
 	})
+})
 
+var _ = Describe("IAM", func() {
+	var (
+		server *mocks.Server
+		client *Client
+	)
+
+	BeforeEach(func() {
+		server, client = testSetup()
+	})
+
+	AfterEach(func() {
+		cleanTenants(client)
+		server.Close()
+	})
+	Describe("ManageTenantIamPolicy", func() {
+		It("Set IAM Policy succeeds", func() {
+			mockTask := createMockTask("SET_IAM_POLICY", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			var policy []PolicyEntry
+			policy = []PolicyEntry{{Principal: "joe@coke.com", Roles: []string{"owner"}}}
+			task, err := client.Tenants.SetIam("tenantId", &policy)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("SET_IAM_POLICY"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+		})
+
+		It("Modify IAM Policy succeeds", func() {
+			mockTask := createMockTask("MODIFY_IAM_POLICY", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			var delta PolicyDelta
+			delta = PolicyDelta{Principal: "joe@coke.com", Action: "ADD", Role: "owner"}
+			task, err := client.Tenants.ModifyIam("tenantId", &delta)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("MODIFY_IAM_POLICY"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+		})
+
+		It("Get IAM Policy succeeds", func() {
+			var policy []PolicyEntry
+			policy = []PolicyEntry{{Principal: "joe@coke.com", Roles: []string{"owner"}}}
+			server.SetResponseJson(200, policy)
+			response, err := client.Tenants.GetIam("tenantId")
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect((*response)[0].Principal).Should(Equal(policy[0].Principal))
+			Expect((*response)[0].Roles).Should(Equal(policy[0].Roles))
+		})
+	})
 })
