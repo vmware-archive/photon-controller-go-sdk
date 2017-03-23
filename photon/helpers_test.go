@@ -250,7 +250,7 @@ func cleanNetworks(client *Client) {
 	}
 	for _, network := range networks.Items {
 		if strings.HasPrefix(network.Name, "go-sdk-network-") {
-			task, err := client.Networks.Delete(network.ID)
+			task, err := client.Subnets.Delete(network.ID)
 			task, err = client.Tasks.Wait(task.ID)
 			if err != nil {
 				GinkgoT().Log(err)

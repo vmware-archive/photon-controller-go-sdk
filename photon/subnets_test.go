@@ -121,7 +121,7 @@ var _ = Describe("Subnet", func() {
 			mockTask := createMockTask("SET_DEFAULT_SUBNET", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 
-			task, err := client.Networks.SetDefault("subnetId")
+			task, err := client.Subnets.SetDefault("subnetId")
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 			Expect(task).ShouldNot(BeNil())
