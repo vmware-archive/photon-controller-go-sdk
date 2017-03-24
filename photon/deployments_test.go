@@ -10,8 +10,6 @@
 package photon
 
 import (
-	"reflect"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/vmware/photon-controller-go-sdk/photon/internal/mocks"
@@ -63,29 +61,6 @@ var _ = Describe("Deployment", func() {
 				NetworkConfiguration: &NetworkConfiguration{Enabled: false},
 			}
 			server.SetResponseJson(200, mockDeployment)
-			deployment, err := client.Deployments.Get(task.Entity.ID)
-
-			GinkgoT().Log(err)
-			Expect(err).Should(BeNil())
-			Expect(deployment).ShouldNot(BeNil())
-			Expect(deployment.ImageDatastores).Should(Equal(deploymentSpec.ImageDatastores))
-			Expect(deployment.UseImageDatastoreForVms).Should(Equal(deploymentSpec.UseImageDatastoreForVms))
-			Expect(deployment.ID).Should(Equal(task.Entity.ID))
-
-			server.SetResponseJson(200, &Deployments{[]Deployment{mockDeployment}})
-			deploymentList, err := client.Deployments.GetAll()
-			GinkgoT().Log(err)
-			Expect(err).Should(BeNil())
-			Expect(deploymentList).ShouldNot(BeNil())
-
-			var found bool
-			for _, d := range deploymentList.Items {
-				if reflect.DeepEqual(d.ImageDatastores, deploymentSpec.ImageDatastores) {
-					found = true
-					break
-				}
-			}
-			Expect(found).Should(BeTrue())
 
 			mockTask = createMockTask("DELETE_DEPLOYMENT", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
@@ -372,37 +347,6 @@ var _ = Describe("Deployment", func() {
 		})
 	})
 
-	Describe("SetSecurityGroups", func() {
-		It("sets security groups for a project", func() {
-			mockTask := createMockTask("SET_SECURITY_GROUPS", "COMPLETED")
-			server.SetResponseJson(200, mockTask)
-
-			// Set security groups for the project
-			expected := &Deployment{
-				Auth: &AuthInfo{
-					SecurityGroups: []string{
-						randomString(10),
-						randomString(10),
-					},
-				},
-			}
-
-			payload := SecurityGroupsSpec{
-				Items: expected.Auth.SecurityGroups,
-			}
-			updateTask, err := client.Deployments.SetSecurityGroups("deployment-ID", &payload)
-			updateTask, err = client.Tasks.Wait(updateTask.ID)
-			Expect(err).Should(BeNil())
-
-			// Get the security groups for the project
-			server.SetResponseJson(200, expected)
-			deployment, err := client.Deployments.Get("deployment-ID")
-			Expect(err).Should(BeNil())
-			Expect(deployment.Auth.SecurityGroups).To(ContainElement(payload.Items[0]))
-			Expect(deployment.Auth.SecurityGroups).To(ContainElement(payload.Items[1]))
-		})
-	})
-
 	Describe("SetImageDatastores", func() {
 		It("Succeeds", func() {
 			mockTask := createMockTask("UPDATE_IMAGE_DATASTORES", "COMPLETED")
@@ -445,60 +389,6 @@ var _ = Describe("Deployment", func() {
 			Expect(err).Should(BeNil())
 			Expect(task).ShouldNot(BeNil())
 			Expect(task.Operation).Should(Equal("SYNC_HOSTS_CONFIG"))
-			Expect(task.State).Should(Equal("COMPLETED"))
-		})
-	})
-
-	Describe("PauseSystemAndPauseBackgroundTasks", func() {
-		It("Pause System and Resume System succeeds", func() {
-			mockTask := createMockTask("PAUSE_SYSTEM", "COMPLETED")
-			server.SetResponseJson(200, mockTask)
-
-			task, err := client.Deployments.PauseSystem("deploymentId")
-			task, err = client.Tasks.Wait(task.ID)
-
-			GinkgoT().Log(err)
-			Expect(err).Should(BeNil())
-			Expect(task).ShouldNot(BeNil())
-			Expect(task.Operation).Should(Equal("PAUSE_SYSTEM"))
-			Expect(task.State).Should(Equal("COMPLETED"))
-
-			mockTask = createMockTask("RESUME_SYSTEM", "COMPLETED")
-			server.SetResponseJson(200, mockTask)
-
-			task, err = client.Deployments.PauseBackgroundTasks("deploymentId")
-			task, err = client.Tasks.Wait(task.ID)
-
-			GinkgoT().Log(err)
-			Expect(err).Should(BeNil())
-			Expect(task).ShouldNot(BeNil())
-			Expect(task.Operation).Should(Equal("RESUME_SYSTEM"))
-			Expect(task.State).Should(Equal("COMPLETED"))
-		})
-
-		It("Pause Background Tasks and Resume System succeeds", func() {
-			mockTask := createMockTask("PAUSE_BACKGROUND_TASKS", "COMPLETED")
-			server.SetResponseJson(200, mockTask)
-
-			task, err := client.Deployments.PauseBackgroundTasks("deploymentId")
-			task, err = client.Tasks.Wait(task.ID)
-
-			GinkgoT().Log(err)
-			Expect(err).Should(BeNil())
-			Expect(task).ShouldNot(BeNil())
-			Expect(task.Operation).Should(Equal("PAUSE_BACKGROUND_TASKS"))
-			Expect(task.State).Should(Equal("COMPLETED"))
-
-			mockTask = createMockTask("RESUME_SYSTEM", "COMPLETED")
-			server.SetResponseJson(200, mockTask)
-
-			task, err = client.Deployments.PauseBackgroundTasks("deploymentId")
-			task, err = client.Tasks.Wait(task.ID)
-
-			GinkgoT().Log(err)
-			Expect(err).Should(BeNil())
-			Expect(task).ShouldNot(BeNil())
-			Expect(task.Operation).Should(Equal("RESUME_SYSTEM"))
 			Expect(task.State).Should(Equal("COMPLETED"))
 		})
 	})
