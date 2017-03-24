@@ -39,18 +39,6 @@ var _ = Describe("Auth", func() {
 		authServer.Close()
 	})
 
-	Describe("GetAuth", func() {
-		It("returns auth info", func() {
-			expected := createMockAuthInfo(nil)
-			server.SetResponseJson(200, expected)
-
-			info, err := client.Auth.Get()
-			fmt.Fprintf(GinkgoWriter, "Got auth info: %+v\n", info)
-			Expect(err).Should(BeNil())
-			Expect(info).Should(BeEquivalentTo(expected))
-		})
-	})
-
 	Describe("GetTokensByPassword", func() {
 		Context("when auth is enabled", func() {
 			BeforeEach(func() {
