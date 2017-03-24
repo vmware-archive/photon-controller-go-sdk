@@ -91,6 +91,38 @@ var _ = Describe("Image", func() {
 			Expect(task.Operation).Should(Equal("DELETE_IMAGE"))
 			Expect(task.State).Should(Equal("COMPLETED"))
 		})
+
+		It("Image create at project scope succeeds", func() {
+			mockTask := createMockTask("CREATE_IMAGE", "COMPLETED", createMockStep("UPLOAD_IMAGE", "COMPLETED"))
+			server.SetResponseJson(200, mockTask)
+
+			imagePath := "../testdata/tty_tiny.ova"
+			file, err := os.Open(imagePath)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			task, err := client.Projects.CreateImage("projectID", file, "tty_tiny.ova", &ImageCreateOptions{ReplicationType: "ON_DEMAND"})
+			task, err = client.Tasks.Wait(task.ID)
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("CREATE_IMAGE"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+
+			err = file.Close()
+			Expect(err).Should(BeNil())
+
+			mockTask = createMockTask("DELETE_IMAGE", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err = client.Images.Delete(task.Entity.ID)
+			task, err = client.Tasks.Wait(task.ID)
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("DELETE_IMAGE"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+		})
 	})
 
 	Describe("GetImage", func() {
