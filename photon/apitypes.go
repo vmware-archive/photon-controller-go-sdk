@@ -461,6 +461,18 @@ type Hosts struct {
 	Items []Host `json:"items"`
 }
 
+type Datastore struct {
+	Kind     string   `json:"kind"`
+	Type     string   `json:"type"`
+	Tags     []string `json:"tags,omitempty"`
+	ID       string   `json:"id"`
+	SelfLink string   `json:"selfLink"`
+}
+
+type Datastores struct {
+	Items []Datastore `json:"items"`
+}
+
 // Creation spec for deployments.
 type DeploymentCreateSpec struct {
 	NTPEndpoint             interface{}                     `json:"ntpEndpoint"`
