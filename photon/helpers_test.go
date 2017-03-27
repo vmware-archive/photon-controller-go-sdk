@@ -249,14 +249,14 @@ func cleanHosts(client *Client) {
 	}
 }
 
-func cleanNetworks(client *Client) {
-	networks, err := client.Networks.GetAll(&NetworkGetOptions{})
+func cleanSubnets(client *Client) {
+	subnets, err := client.Subnets.GetAll(&SubnetGetOptions{})
 	if err != nil {
 		GinkgoT().Log(err)
 	}
-	for _, network := range networks.Items {
-		if strings.HasPrefix(network.Name, "go-sdk-network-") {
-			task, err := client.Networks.Delete(network.ID)
+	for _, subnet := range subnets.Items {
+		if strings.HasPrefix(subnet.Name, "go-sdk-network-") {
+			task, err := client.Subnets.Delete(subnet.ID)
 			task, err = client.Tasks.Wait(task.ID)
 			if err != nil {
 				GinkgoT().Log(err)
