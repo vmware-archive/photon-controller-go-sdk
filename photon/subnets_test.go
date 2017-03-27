@@ -20,6 +20,7 @@ var _ = Describe("Subnet", func() {
 		server           *mocks.Server
 		client           *Client
 		subnetCreateSpec *SubnetCreateSpec
+		networkSpec      *NetworkCreateSpec
 		tenantID         string
 		resName          string
 		projID           string
@@ -33,9 +34,14 @@ var _ = Describe("Subnet", func() {
 		projID = createProject(server, client, tenantID, resName)
 		routerID = createRouter(server, client, projID)
 		subnetCreateSpec = &SubnetCreateSpec{Name: "subnet-1", Description: "Test subnet", PrivateIpCidr: "cidr1"}
+		networkSpec = &NetworkCreateSpec{
+			Name:       randomString(10, "go-sdk-network-"),
+			PortGroups: []string{"portGroup"},
+		}
 	})
 
 	AfterEach(func() {
+		cleanSubnets(client)
 		cleanTenants(client)
 		server.Close()
 	})
@@ -61,6 +67,31 @@ var _ = Describe("Subnet", func() {
 			Expect(err).Should(BeNil())
 			Expect(task).ShouldNot(BeNil())
 			Expect(task.Operation).Should(Equal("DELETE_SUBNET"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+		})
+	})
+
+	Describe("CreateDeletePortGroup", func() {
+		It("PortGroup create and delete succeeds", func() {
+			mockTask := createMockTask("CREATE_PORT_GROUP", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+
+			task, err := client.Subnets.Create(networkSpec)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("CREATE_PORT_GROUP"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+
+			mockTask = createMockTask("DELETE_PORT_GROUP", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err = client.Subnets.Delete(task.Entity.ID)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("DELETE_PORT_GROUP"))
 			Expect(task.State).Should(Equal("COMPLETED"))
 		})
 	})
@@ -98,6 +129,71 @@ var _ = Describe("Subnet", func() {
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 		})
+
+		It("GetAll Network succeeds", func() {
+			mockTask := createMockTask("CREATE_NETWORK", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err := client.Subnets.Create(networkSpec)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+
+			server.SetResponseJson(200, createMockSubnetsPage(Subnet{Name: networkSpec.Name}))
+			subnets, err := client.Subnets.GetAll(&SubnetGetOptions{})
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(subnets).ShouldNot(BeNil())
+
+			var found bool
+			for _, subnet := range subnets.Items {
+				if subnet.Name == networkSpec.Name && subnet.ID == task.Entity.ID {
+					found = true
+					break
+				}
+			}
+			Expect(found).Should(BeTrue())
+
+			mockTask = createMockTask("DELETE_NETWORK", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err = client.Subnets.Delete(task.Entity.ID)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+		})
+
+		It("GetAll PortGroups with optional name succeeds", func() {
+			mockTask := createMockTask("CREATE_PORT_GROUP", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err := client.Subnets.Create(networkSpec)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+
+			server.SetResponseJson(200, createMockSubnetsPage(Subnet{Name: networkSpec.Name}))
+			subnets, err := client.Subnets.GetAll(&SubnetGetOptions{Name: networkSpec.Name})
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(subnets).ShouldNot(BeNil())
+
+			var found bool
+			for _, subnet := range subnets.Items {
+				if subnet.Name == networkSpec.Name && subnet.ID == task.Entity.ID {
+					found = true
+					break
+				}
+			}
+			Expect(len(subnets.Items)).Should(Equal(1))
+			Expect(found).Should(BeTrue())
+
+			mockTask = createMockTask("DELETE_PORT_GROUP", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err = client.Subnets.Delete(task.Entity.ID)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+		})
 	})
 
 	Describe("UpdateSubnet", func() {
@@ -121,7 +217,7 @@ var _ = Describe("Subnet", func() {
 			mockTask := createMockTask("SET_DEFAULT_SUBNET", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 
-			task, err := client.Networks.SetDefault("subnetId")
+			task, err := client.Subnets.SetDefault("subnetId")
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 			Expect(task).ShouldNot(BeNil())
