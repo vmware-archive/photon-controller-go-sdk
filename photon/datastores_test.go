@@ -10,72 +10,66 @@
 package photon
 
 import (
-	"github.com/onsi/ginkgo"
-	"github.com/onsi/gomega"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 	"github.com/vmware/photon-controller-go-sdk/photon/internal/mocks"
 )
 
-var _ = ginkgo.Describe("Datastores", func() {
+var _ = Describe("Datastores", func() {
 	var (
-		server *mocks.Server
-		client *Client
+		server        *mocks.Server
+		client        *Client
+		datastoreSpec *Datastore
 	)
 
-	ginkgo.BeforeEach(func() {
+	BeforeEach(func() {
 		server, client = testSetup()
+
+		datastoreId := "1234"
+		datastoreSpec = &Datastore{
+			Kind:     "datastore",
+			Type:     "LOCAL_VMFS",
+			ID:       datastoreId,
+			SelfLink: "https://192.0.0.2" + rootUrl + "/infrastructure/datastores/" + datastoreId,
+		}
 	})
 
-	ginkgo.AfterEach(func() {
+	AfterEach(func() {
 		server.Close()
 	})
 
-	ginkgo.Describe("Get", func() {
-		ginkgo.It("Get a single datastore successfully", func() {
-			kind := "datastore"
-			datastoreType := "LOCAL_VMFS"
-			datastoreID := "1234"
-			server.SetResponseJson(200,
-				Datastore{
-					Kind:     kind,
-					Type:     datastoreType,
-					ID:       datastoreID,
-					SelfLink: "https://192.0.0.2/infrastructure/datastores/1234",
-				})
+	Describe("Get", func() {
+		It("Get a single datastore successfully", func() {
 
-			datastore, err := client.Datastores.Get("1234")
-			ginkgo.GinkgoT().Log(err)
+			server.SetResponseJson(200, datastoreSpec)
 
-			gomega.Expect(err).Should(gomega.BeNil())
-			gomega.Expect(datastore).ShouldNot(gomega.BeNil())
-			gomega.Expect(datastore.Kind).Should(gomega.Equal(kind))
-			gomega.Expect(datastore.Type).Should(gomega.Equal(datastoreType))
-			gomega.Expect(datastore.ID).Should(gomega.Equal(datastoreID))
+			datastore, err := client.Datastores.Get(datastoreSpec.ID)
+			GinkgoT().Log(err)
+
+			Expect(err).Should(BeNil())
+			Expect(datastore).ShouldNot(BeNil())
+			Expect(datastore.Kind).Should(Equal(datastoreSpec.Kind))
+			Expect(datastore.Type).Should(Equal(datastoreSpec.Type))
+			Expect(datastore.ID).Should(Equal(datastoreSpec.ID))
+
 		})
 	})
-	ginkgo.Describe("GetAll", func() {
-		ginkgo.It("Get all datastores successfully", func() {
-			kind := "datastore"
-			datastoreType := "LOCAL_VMFS"
-			datastoreID := "1234"
-			datastore := Datastore{
-				Kind:     kind,
-				Type:     datastoreType,
-				ID:       datastoreID,
-				SelfLink: "https://192.0.0.2/infrastructure/datastores/1234",
-			}
+	Describe("GetAll", func() {
+		It("Get all datastores successfully", func() {
 			datastoresExpected := Datastores{
-				Items: []Datastore{datastore},
+				Items: []Datastore{*datastoreSpec},
 			}
+
 			server.SetResponseJson(200, datastoresExpected)
 
 			datastores, err := client.Datastores.GetAll()
-			ginkgo.GinkgoT().Log(err)
+			GinkgoT().Log(err)
 
-			gomega.Expect(err).Should(gomega.BeNil())
-			gomega.Expect(datastores).ShouldNot(gomega.BeNil())
-			gomega.Expect(datastores.Items[0].Kind).Should(gomega.Equal(kind))
-			gomega.Expect(datastores.Items[0].Type).Should(gomega.Equal(datastoreType))
-			gomega.Expect(datastores.Items[0].ID).Should(gomega.Equal(datastoreID))
+			Expect(err).Should(BeNil())
+			Expect(datastores).ShouldNot(BeNil())
+			Expect(datastores.Items[0].Kind).Should(Equal(datastoreSpec.Kind))
+			Expect(datastores.Items[0].Type).Should(Equal(datastoreSpec.Type))
+			Expect(datastores.Items[0].ID).Should(Equal(datastoreSpec.ID))
 		})
 	})
 })
