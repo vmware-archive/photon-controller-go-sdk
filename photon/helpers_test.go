@@ -232,14 +232,14 @@ func cleanVMs(client *Client, projID string) {
 }
 
 func cleanHosts(client *Client) {
-	hostList, err := client.Hosts.GetAll()
+	hostList, err := client.InfraHosts.GetHosts()
 	if err != nil {
 		GinkgoT().Log(err)
 	}
 	for _, host := range hostList.Items {
 		if host.Metadata != nil {
 			if val, ok := host.Metadata["Test"]; ok && val == "go-sdk-host" {
-				task, err := client.Hosts.Delete(host.ID)
+				task, err := client.InfraHosts.Delete(host.ID)
 				task, err = client.Tasks.Wait(task.ID)
 				if err != nil {
 					GinkgoT().Log(err)

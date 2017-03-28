@@ -18,7 +18,7 @@ type DatastoresAPI struct {
 	client *Client
 }
 
-var datastoresURL = rootUrl + "/datastores"
+var datastoresURL = rootUrl + "/infrastructure/datastores"
 
 // GetAll returns all datastores; requires system administrator privileges
 func (api *DatastoresAPI) GetAll() (result *Datastores, err error) {

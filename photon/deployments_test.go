@@ -75,55 +75,6 @@ var _ = Describe("Deployment", func() {
 	})
 
 	Describe("GetDeployment", func() {
-		It("Get Hosts succeeds", func() {
-			mockTask := createMockTask("CREATE_DEPLOYMENT", "COMPLETED")
-			server.SetResponseJson(200, mockTask)
-
-			task, err := client.Deployments.Create(deploymentSpec)
-			task, err = client.Tasks.Wait(task.ID)
-			GinkgoT().Log(err)
-			Expect(err).Should(BeNil())
-
-			mockTask = createMockTask("CREATE_HOST", "COMPLETED")
-			server.SetResponseJson(200, mockTask)
-
-			hostSpec := &HostCreateSpec{
-				Username: randomString(10),
-				Password: randomString(10),
-				Address:  randomAddress(),
-				Tags:     []string{"CLOUD"},
-				Metadata: map[string]string{"test": "go-sdk-host"},
-			}
-
-			mockTask = createMockTask("CREATE_HOST", "COMPLETED")
-			server.SetResponseJson(200, mockTask)
-
-			hostTask, err := client.Hosts.Create(hostSpec, task.Entity.ID)
-			hostTask, err = client.Tasks.Wait(hostTask.ID)
-
-			GinkgoT().Log(err)
-			Expect(err).Should(BeNil())
-
-			server.SetResponseJson(200, createMockHostsPage(Host{Tags: hostSpec.Tags, ID: task.Entity.ID}))
-			hostList, err := client.Deployments.GetHosts(task.Entity.ID)
-
-			var found bool
-			for _, host := range hostList.Items {
-				if host.ID == hostTask.Entity.ID {
-					found = true
-					break
-				}
-			}
-			Expect(found).Should(BeTrue())
-
-			mockTask = createMockTask("DELETE_DEPLOYMENT", "COMPLETED")
-			server.SetResponseJson(200, mockTask)
-			task, err = client.Deployments.Delete(task.Entity.ID)
-			task, err = client.Tasks.Wait(task.ID)
-			GinkgoT().Log(err)
-			Expect(err).Should(BeNil())
-		})
-
 		Context("GetVM needs a vm", func() {
 			var (
 				tenantID     string
@@ -233,52 +184,6 @@ var _ = Describe("Deployment", func() {
 			})
 		})
 
-	})
-
-	Describe("SetImageDatastores", func() {
-		It("Succeeds", func() {
-			mockTask := createMockTask("UPDATE_IMAGE_DATASTORES", "COMPLETED")
-			server.SetResponseJson(200, mockTask)
-
-			imageDatastores := &ImageDatastores{
-				[]string{"imageDatastore1", "imageDatastore2"},
-			}
-			createdTask, err := client.Deployments.SetImageDatastores("deploymentId", imageDatastores)
-			createdTask, err = client.Tasks.Wait(createdTask.ID)
-
-			Expect(err).Should(BeNil())
-			Expect(createdTask.Operation).Should(Equal("UPDATE_IMAGE_DATASTORES"))
-			Expect(createdTask.State).Should(Equal("COMPLETED"))
-		})
-
-		It("Fails", func() {
-			mockApiError := createMockApiError("INVALID_IMAGE_DATASTORES", "Not a super set", 400)
-			server.SetResponseJson(400, mockApiError)
-
-			imageDatastores := &ImageDatastores{
-				[]string{"imageDatastore1", "imageDatastore2"},
-			}
-			createdTask, err := client.Deployments.SetImageDatastores("deploymentId", imageDatastores)
-
-			Expect(err).Should(Equal(*mockApiError))
-			Expect(createdTask).Should(BeNil())
-		})
-	})
-
-	Describe("SyncHostsConfig", func() {
-		It("Sync Hosts Config succeeds", func() {
-			mockTask := createMockTask("SYNC_HOSTS_CONFIG", "COMPLETED")
-			server.SetResponseJson(200, mockTask)
-
-			task, err := client.Deployments.SyncHostsConfig("deploymentId")
-			task, err = client.Tasks.Wait(task.ID)
-
-			GinkgoT().Log(err)
-			Expect(err).Should(BeNil())
-			Expect(task).ShouldNot(BeNil())
-			Expect(task.Operation).Should(Equal("SYNC_HOSTS_CONFIG"))
-			Expect(task.State).Should(Equal("COMPLETED"))
-		})
 	})
 
 	Describe("EnableAndDisableServiceType", func() {

@@ -39,7 +39,7 @@ var _ = ginkgo.Describe("Datastores", func() {
 					Kind:     kind,
 					Type:     datastoreType,
 					ID:       datastoreID,
-					SelfLink: "https://192.0.0.2/datastores/1234",
+					SelfLink: "https://192.0.0.2/infrastructure/datastores/1234",
 				})
 
 			datastore, err := client.Datastores.Get("1234")
@@ -61,7 +61,7 @@ var _ = ginkgo.Describe("Datastores", func() {
 				Kind:     kind,
 				Type:     datastoreType,
 				ID:       datastoreID,
-				SelfLink: "https://192.0.0.2/datastores/1234",
+				SelfLink: "https://192.0.0.2/infrastructure/datastores/1234",
 			}
 			datastoresExpected := Datastores{
 				Items: []Datastore{datastore},

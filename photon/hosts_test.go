@@ -41,40 +41,12 @@ var _ = Describe("Host", func() {
 		server.Close()
 	})
 
-	Describe("CreateAndDeleteHost", func() {
-		It("host create and delete succeeds", func() {
-			mockTask := createMockTask("CREATE_HOST", "COMPLETED")
-			server.SetResponseJson(200, mockTask)
-
-			task, err := client.Hosts.Create(hostSpec, "deployment-Id")
-			task, err = client.Tasks.Wait(task.ID)
-
-			GinkgoT().Log(err)
-			Expect(err).Should(BeNil())
-			Expect(task).ShouldNot(BeNil())
-			Expect(task.Operation).Should(Equal("CREATE_HOST"))
-			Expect(task.State).Should(Equal("COMPLETED"))
-
-			mockTask = createMockTask("DELETE_HOST", "COMPLETED")
-			server.SetResponseJson(200, mockTask)
-
-			task, err = client.Hosts.Delete(task.Entity.ID)
-			task, err = client.Tasks.Wait(task.ID)
-
-			GinkgoT().Log(err)
-			Expect(err).Should(BeNil())
-			Expect(task).ShouldNot(BeNil())
-			Expect(task.Operation).Should(Equal("DELETE_HOST"))
-			Expect(task.State).Should(Equal("COMPLETED"))
-		})
-	})
-
 	Describe("ProvisionHost", func() {
 		It("host provisioning succeeds", func() {
 			mockTask := createMockTask("CREATE_HOST", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 
-			task, err := client.Hosts.Create(hostSpec, "deployment-Id")
+			task, err := client.InfraHosts.Create(hostSpec)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
@@ -93,7 +65,7 @@ var _ = Describe("Host", func() {
 
 			mockTask = createMockTask("DELETE_HOST", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
-			task, err = client.Hosts.Delete(task.Entity.ID)
+			task, err = client.InfraHosts.Delete(task.Entity.ID)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
@@ -106,13 +78,13 @@ var _ = Describe("Host", func() {
 			mockTask := createMockTask("CREATE_HOST", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 
-			task, err := client.Hosts.Create(hostSpec, "deployment-Id")
+			task, err := client.InfraHosts.Create(hostSpec)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 
 			server.SetResponseJson(200, Host{Tags: hostSpec.Tags, ID: task.Entity.ID})
-			host, err := client.Hosts.Get(task.Entity.ID)
+			host, err := client.InfraHosts.Get(task.Entity.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 			Expect(host.ID).Should(Equal(task.Entity.ID))
@@ -120,7 +92,7 @@ var _ = Describe("Host", func() {
 
 			mockTask = createMockTask("DELETE_HOST", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
-			task, err = client.Hosts.Delete(task.Entity.ID)
+			task, err = client.InfraHosts.Delete(task.Entity.ID)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
@@ -130,13 +102,13 @@ var _ = Describe("Host", func() {
 			mockTask := createMockTask("CREATE_HOST", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 
-			task, err := client.Hosts.Create(hostSpec, "deployment-Id")
+			task, err := client.InfraHosts.Create(hostSpec)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 
 			server.SetResponseJson(200, &Hosts{[]Host{Host{Tags: hostSpec.Tags, ID: task.Entity.ID}}})
-			hostList, err := client.Hosts.GetAll()
+			hostList, err := client.InfraHosts.GetHosts()
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 			Expect(hostList).ShouldNot(BeNil())
@@ -152,7 +124,7 @@ var _ = Describe("Host", func() {
 
 			mockTask = createMockTask("DELETE_HOST", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
-			task, err = client.Hosts.Delete(task.Entity.ID)
+			task, err = client.InfraHosts.Delete(task.Entity.ID)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
@@ -197,7 +169,7 @@ var _ = Describe("Host", func() {
 			mockTask.Entity.ID = "mock-task-id"
 			server.SetResponseJson(200, mockTask)
 
-			task, err := client.Hosts.Create(hostSpec, "deployment-Id")
+			task, err := client.InfraHosts.Create(hostSpec)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
@@ -213,7 +185,7 @@ var _ = Describe("Host", func() {
 
 			mockTask = createMockTask("DELETE_HOST", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
-			task, err = client.Hosts.Delete(task.Entity.ID)
+			task, err = client.InfraHosts.Delete(task.Entity.ID)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
@@ -285,7 +257,7 @@ var _ = Describe("Host", func() {
 		It("GetVms returns a list of vms", func() {
 			mockTask := createMockTask("CREATE_HOST", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
-			hostTask, err := client.Hosts.Create(hostSpec, "deployment-Id")
+			hostTask, err := client.InfraHosts.Create(hostSpec)
 			hostTask, err = client.Tasks.Wait(hostTask.ID)
 
 			GinkgoT().Log(err)
@@ -322,7 +294,7 @@ var _ = Describe("Host", func() {
 
 			mockTask = createMockTask("DELETE_HOST", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
-			hostTask, err = client.Hosts.Delete(hostTask.Entity.ID)
+			hostTask, err = client.InfraHosts.Delete(hostTask.Entity.ID)
 			hostTask, err = client.Tasks.Wait(hostTask.ID)
 
 			GinkgoT().Log(err)
@@ -335,7 +307,7 @@ var _ = Describe("Host", func() {
 			mockTask := createMockTask("CREATE_HOST", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 
-			task, err := client.Hosts.Create(hostSpec, "deployment-Id")
+			task, err := client.InfraHosts.Create(hostSpec)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
@@ -343,7 +315,7 @@ var _ = Describe("Host", func() {
 			mockTask = createMockTask("SUSPEND_HOST", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 
-			task, err = client.Hosts.Suspend(task.Entity.ID)
+			task, err = client.InfraHosts.Suspend(task.Entity.ID)
 			task, err = client.Tasks.Wait(task.ID)
 
 			GinkgoT().Log(err)
@@ -355,7 +327,7 @@ var _ = Describe("Host", func() {
 			mockTask = createMockTask("RESUME_HOST", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 
-			task, err = client.Hosts.Resume(task.Entity.ID)
+			task, err = client.InfraHosts.Resume(task.Entity.ID)
 			task, err = client.Tasks.Wait(task.ID)
 
 			GinkgoT().Log(err)
@@ -377,7 +349,7 @@ var _ = Describe("Host", func() {
 			// Create host
 			mockTask := createMockTask("CREATE_HOST", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
-			task, err := client.Hosts.Create(hostSpec, "deployment-Id")
+			task, err := client.InfraHosts.Create(hostSpec)
 			Expect(err).Should(BeNil())
 
 			task, err = client.Tasks.Wait(task.ID)
@@ -389,7 +361,7 @@ var _ = Describe("Host", func() {
 			// Suspend host
 			mockTask = createMockTask("SUSPEND_HOST", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
-			task, err = client.Hosts.Suspend(hostID)
+			task, err = client.InfraHosts.Suspend(hostID)
 			task, err = client.Tasks.Wait(task.ID)
 			Expect(err).Should(BeNil())
 		})
@@ -399,7 +371,7 @@ var _ = Describe("Host", func() {
 			if len(hostID) > 0 {
 				mockTask := createMockTask("DELETE_HOST", "COMPLETED")
 				server.SetResponseJson(200, mockTask)
-				task, err := client.Hosts.Delete(hostID)
+				task, err := client.InfraHosts.Delete(hostID)
 				task, err = client.Tasks.Wait(task.ID)
 				if err != nil {
 					GinkgoT().Log(err)
@@ -410,7 +382,7 @@ var _ = Describe("Host", func() {
 		It("Host Enter and Exit Maintenance Mode succeeds", func() {
 			mockTask := createMockTask("ENTER_MAINTENANCE_MODE", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
-			task, err := client.Hosts.EnterMaintenanceMode(hostID)
+			task, err := client.InfraHosts.EnterMaintenanceMode(hostID)
 			task, err = client.Tasks.Wait(task.ID)
 
 			GinkgoT().Log(err)
@@ -421,7 +393,7 @@ var _ = Describe("Host", func() {
 
 			mockTask = createMockTask("EXIT_MAINTENANCE_MODE", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
-			task, err = client.Hosts.ExitMaintenanceMode(hostID)
+			task, err = client.InfraHosts.ExitMaintenanceMode(hostID)
 			task, err = client.Tasks.Wait(task.ID)
 
 			GinkgoT().Log(err)
