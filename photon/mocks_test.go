@@ -12,6 +12,7 @@ package photon
 import (
 	"bytes"
 	"crypto/tls"
+	"log"
 	"math/rand"
 	"net/http"
 	"os"
@@ -101,10 +102,6 @@ func testSetup() (server *mocks.Server, client *Client) {
 	options := &ClientOptions{
 		IgnoreCertificate: true,
 	}
-	if os.Getenv("API_ACCESS_TOKEN") != "" {
-		options.TokenOptions.AccessToken = os.Getenv("API_ACCESS_TOKEN")
-	}
-
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: options.IgnoreCertificate,
@@ -112,6 +109,21 @@ func testSetup() (server *mocks.Server, client *Client) {
 	}
 
 	httpClient := &http.Client{Transport: transport}
+	if os.Getenv("API_ACCESS_TOKEN") != "" {
+		options.TokenOptions.AccessToken = os.Getenv("API_ACCESS_TOKEN")
+	}
+	if os.Getenv("TEST_ENDPOINT") != "" && os.Getenv("API_ACCESS_TOKEN") == "" {
+		username := os.Getenv("USERNAME")
+		password := os.Getenv("PASSWORD")
+
+		client = NewTestClient(uri, options, httpClient)
+		tokens, err := client.Auth.GetTokensByPassword(username, password)
+		if err != nil {
+			log.Fatal(err)
+		}
+		options.TokenOptions = tokens
+	}
+
 	client = NewTestClient(uri, options, httpClient)
 	return
 }
