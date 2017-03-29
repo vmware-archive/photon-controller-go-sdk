@@ -22,7 +22,6 @@ var _ = Describe("Subnet", func() {
 		subnetCreateSpec *SubnetCreateSpec
 		networkSpec      *NetworkCreateSpec
 		tenantID         string
-		resName          string
 		projID           string
 		routerID         string
 	)
@@ -30,8 +29,7 @@ var _ = Describe("Subnet", func() {
 	BeforeEach(func() {
 		server, client = testSetup()
 		tenantID = createTenant(server, client)
-		resName = createResTicket(server, client, tenantID)
-		projID = createProject(server, client, tenantID, resName)
+		projID = createProject(server, client, tenantID)
 		routerID = createRouter(server, client, projID)
 		subnetCreateSpec = &SubnetCreateSpec{Name: "subnet-1", Description: "Test subnet", PrivateIpCidr: "cidr1"}
 		networkSpec = &NetworkCreateSpec{

@@ -21,7 +21,6 @@ var _ = Describe("VM", func() {
 		server       *mocks.Server
 		client       *Client
 		tenantID     string
-		resName      string
 		projID       string
 		imageID      string
 		flavorSpec   *FlavorCreateSpec
@@ -32,8 +31,7 @@ var _ = Describe("VM", func() {
 	BeforeEach(func() {
 		server, client = testSetup()
 		tenantID = createTenant(server, client)
-		resName = createResTicket(server, client, tenantID)
-		projID = createProject(server, client, tenantID, resName)
+		projID = createProject(server, client, tenantID)
 		imageID = createImage(server, client)
 		flavorSpec = &FlavorCreateSpec{
 			[]QuotaLineItem{QuotaLineItem{"COUNT", 1, "ephemeral-disk.cost"}},

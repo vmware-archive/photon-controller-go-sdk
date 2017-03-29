@@ -188,11 +188,10 @@ type DiskList struct {
 
 // Creation spec for projects.
 type ProjectCreateSpec struct {
-	ResourceTicket             ResourceTicketReservation `json:"resourceTicket"`
-	Name                       string                    `json:"name"`
-	SecurityGroups             []string                  `json:"securityGroups,omitempty"`
-	DefaultRouterPrivateIpCidr string                    `json:"defaultRouterPrivateIpCidr,omitempty"`
-	ResourceQuota              Quota                     `json:"quota,omitempty"`
+	Name                       string   `json:"name"`
+	SecurityGroups             []string `json:"securityGroups,omitempty"`
+	DefaultRouterPrivateIpCidr string   `json:"defaultRouterPrivateIpCidr,omitempty"`
+	ResourceQuota              Quota    `json:"quota,omitempty"`
 }
 
 // Represents multiple projects returned by the API.
@@ -203,20 +202,12 @@ type ProjectList struct {
 // Compact representation of projects.
 type ProjectCompact struct {
 	Kind           string          `json:"kind"`
-	ResourceTicket ProjectTicket   `json:"resourceTicket"`
 	Name           string          `json:"name"`
 	ID             string          `json:"id"`
 	Tags           []string        `json:"tags"`
 	SelfLink       string          `json:"selfLink"`
 	SecurityGroups []SecurityGroup `json:"securityGroups"`
 	ResourceQuota  Quota           `json:"quota,omitempty"`
-}
-
-type ProjectTicket struct {
-	TenantTicketID   string          `json:"tenantTicketId"`
-	Usage            []QuotaLineItem `json:"usage"`
-	TenantTicketName string          `json:"tenantTicketName"`
-	Limits           []QuotaLineItem `json:"limits"`
 }
 
 // Represents an image.
@@ -265,15 +256,14 @@ type Status struct {
 
 // Represents a single tenant.
 type Tenant struct {
-	Projects        []BaseCompact   `json:"projects"`
-	ResourceTickets []BaseCompact   `json:"resourceTickets"`
-	Kind            string          `json:"kind"`
-	Name            string          `json:"name"`
-	ID              string          `json:"id"`
-	SelfLink        string          `json:"selfLink"`
-	Tags            []string        `json:"tags"`
-	SecurityGroups  []SecurityGroup `json:"securityGroups"`
-	ResourceQuota   Quota           `json:"quota,omitempty"`
+	Projects       []BaseCompact   `json:"projects"`
+	Kind           string          `json:"kind"`
+	Name           string          `json:"name"`
+	ID             string          `json:"id"`
+	SelfLink       string          `json:"selfLink"`
+	Tags           []string        `json:"tags"`
+	SecurityGroups []SecurityGroup `json:"securityGroups"`
+	ResourceQuota  Quota           `json:"quota,omitempty"`
 }
 
 // Represents multiple tenants returned by the API.
@@ -286,35 +276,6 @@ type TenantCreateSpec struct {
 	Name           string   `json:"name"`
 	SecurityGroups []string `json:"securityGroups,omitempty"`
 	ResourceQuota  Quota    `json:"quota,omitempty"`
-}
-
-// Creation spec for resource tickets.
-type ResourceTicketCreateSpec struct {
-	Name   string          `json:"name"`
-	Limits []QuotaLineItem `json:"limits"`
-}
-
-// Represents a single resource ticket.
-type ResourceTicket struct {
-	Kind     string          `json:"kind"`
-	Usage    []QuotaLineItem `json:"usage"`
-	TenantId string          `json:"tenantId"`
-	Name     string          `json:"name"`
-	ID       string          `json:"id"`
-	Limits   []QuotaLineItem `json:"limits"`
-	Tags     []string        `json:"tags"`
-	SelfLink string          `json:"selfLink"`
-}
-
-// Represents multiple resource tickets returned by the API.
-type ResourceList struct {
-	Items []ResourceTicket `json:"items"`
-}
-
-// Represents a resource reservation on a resource ticket.
-type ResourceTicketReservation struct {
-	Name   string          `json:"name"`
-	Limits []QuotaLineItem `json:"limits"`
 }
 
 // Represents the quota

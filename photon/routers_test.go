@@ -21,15 +21,13 @@ var _ = Describe("Router", func() {
 		client           *Client
 		routerCreateSpec *RouterCreateSpec
 		tenantID         string
-		resName          string
 		projID           string
 	)
 
 	BeforeEach(func() {
 		server, client = testSetup()
 		tenantID = createTenant(server, client)
-		resName = createResTicket(server, client, tenantID)
-		projID = createProject(server, client, tenantID, resName)
+		projID = createProject(server, client, tenantID)
 		routerCreateSpec = &RouterCreateSpec{Name: "router-1", PrivateIpCidr: "cidr1"}
 	})
 
