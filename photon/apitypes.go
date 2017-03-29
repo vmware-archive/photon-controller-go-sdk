@@ -684,25 +684,6 @@ type SecurityGroupsSpec struct {
 	Items []string `json:"items"`
 }
 
-// Represents single availability zone.
-type AvailabilityZone struct {
-	Kind     string `json:"kind"`
-	Name     string `json:"name"`
-	State    string `json:"state"`
-	ID       string `json:"id"`
-	SelfLink string `json:"selfLink"`
-}
-
-// Represents multiple availability zones returned by the API.
-type AvailabilityZones struct {
-	Items []AvailabilityZone `json:"items"`
-}
-
-// Creation spec for availability zones.
-type AvailabilityZoneCreateSpec struct {
-	Name string `json:"name"`
-}
-
 // Represents availability zone that can be set for host
 type HostSetAvailabilityZoneOperation struct {
 	AvailabilityZoneId string `json:"availabilityZoneId"`
@@ -725,11 +706,6 @@ type Zones struct {
 // Creation spec for zones.
 type ZoneCreateSpec struct {
 	Name string `json:"name"`
-}
-
-// Represents zone that can be set for host
-type HostSetZoneOperation struct {
-	ZoneId string `json:"zoneId"`
 }
 
 // Represents the list of image datastores.
