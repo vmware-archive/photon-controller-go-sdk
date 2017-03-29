@@ -45,12 +45,6 @@ type MockProjectsPage struct {
 	PreviousPageLink string           `json:"previousPageLink"`
 }
 
-type MockResourceTicketsPage struct {
-	Items            []ResourceTicket `json:"items"`
-	NextPageLink     string           `json:"nextPageLink"`
-	PreviousPageLink string           `json:"previousPageLink"`
-}
-
 type MockTenantsPage struct {
 	Items            []Tenant `json:"items"`
 	NextPageLink     string   `json:"nextPageLink"`
@@ -174,16 +168,6 @@ func createMockProjectsPage(projects ...ProjectCompact) *MockProjectsPage {
 	}
 
 	return &projectsPage
-}
-
-func createMockResourceTicketsPage(resourceTickets ...ResourceTicket) *MockResourceTicketsPage {
-	resourceTicketsPage := MockResourceTicketsPage{
-		Items:            resourceTickets,
-		NextPageLink:     "",
-		PreviousPageLink: "",
-	}
-
-	return &resourceTicketsPage
 }
 
 func createMockTenantsPage(tenants ...Tenant) *MockTenantsPage {

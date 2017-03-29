@@ -35,7 +35,6 @@ type Client struct {
 	Hosts             *HostsAPI
 	Datastores        *DatastoresAPI
 	Deployments       *DeploymentsAPI
-	ResourceTickets   *ResourceTicketsAPI
 	Services          *ServicesAPI
 	Auth              *AuthAPI
 	AvailabilityZones *AvailabilityZonesAPI
@@ -164,7 +163,6 @@ func NewClient(endpoint string, options *ClientOptions, logger *log.Logger) (c *
 	c.Hosts = &HostsAPI{c}
 	c.Datastores = &DatastoresAPI{c}
 	c.Deployments = &DeploymentsAPI{c}
-	c.ResourceTickets = &ResourceTicketsAPI{c}
 	c.Services = &ServicesAPI{c}
 	c.Auth = &AuthAPI{c}
 	c.AvailabilityZones = &AvailabilityZonesAPI{c}

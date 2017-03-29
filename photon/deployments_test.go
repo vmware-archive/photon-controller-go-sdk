@@ -78,7 +78,6 @@ var _ = Describe("Deployment", func() {
 		Context("GetVM needs a vm", func() {
 			var (
 				tenantID     string
-				resName      string
 				projID       string
 				imageID      string
 				flavorSpec   *FlavorCreateSpec
@@ -88,8 +87,7 @@ var _ = Describe("Deployment", func() {
 
 			BeforeEach(func() {
 				tenantID = createTenant(server, client)
-				resName = createResTicket(server, client, tenantID)
-				projID = createProject(server, client, tenantID, resName)
+				projID = createProject(server, client, tenantID)
 				imageID = createImage(server, client)
 				flavorSpec = &FlavorCreateSpec{
 					[]QuotaLineItem{QuotaLineItem{"COUNT", 1, "ephemeral-disk.cost"}},

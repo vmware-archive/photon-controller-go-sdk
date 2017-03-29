@@ -318,71 +318,16 @@ var _ = Describe("Tenant", func() {
 	})
 })
 
-var _ = Describe("ResourceTicket", func() {
-	var (
-		server   *mocks.Server
-		client   *Client
-		tenantID string
-	)
-
-	BeforeEach(func() {
-		server, client = testSetup()
-		tenantID = createTenant(server, client)
-	})
-
-	AfterEach(func() {
-		cleanTenants(client)
-		server.Close()
-	})
-
-	Describe("CreateAndGetResourceTicket", func() {
-		It("Resource ticket create and get succeeds", func() {
-			mockTask := createMockTask("CREATE_RESOURCE_TICKET", "COMPLETED")
-			server.SetResponseJson(200, mockTask)
-			spec := &ResourceTicketCreateSpec{
-				Name:   randomString(10),
-				Limits: []QuotaLineItem{QuotaLineItem{Unit: "GB", Value: 16, Key: "vm.memory"}},
-			}
-			task, err := client.Tenants.CreateResourceTicket(tenantID, spec)
-
-			GinkgoT().Log(err)
-			Expect(err).Should(BeNil())
-			Expect(task).ShouldNot(BeNil())
-			Expect(task.Operation).Should(Equal("CREATE_RESOURCE_TICKET"))
-			Expect(task.State).Should(Equal("COMPLETED"))
-
-			mockResList := createMockResourceTicketsPage(ResourceTicket{TenantId: tenantID, Name: spec.Name, Limits: spec.Limits})
-			server.SetResponseJson(200, mockResList)
-			resList, err := client.Tenants.GetResourceTickets(tenantID, &ResourceTicketGetOptions{spec.Name})
-			GinkgoT().Log(err)
-			Expect(err).Should(BeNil())
-			Expect(task).ShouldNot(BeNil())
-			Expect(resList).ShouldNot(BeNil())
-
-			var found bool
-			for _, res := range resList.Items {
-				if res.Name == spec.Name && res.ID == task.Entity.ID {
-					found = true
-					break
-				}
-			}
-			Expect(found).Should(BeTrue())
-		})
-	})
-})
-
 var _ = Describe("Project", func() {
 	var (
 		server   *mocks.Server
 		client   *Client
 		tenantID string
-		resName  string
 	)
 
 	BeforeEach(func() {
 		server, client = testSetup()
 		tenantID = createTenant(server, client)
-		resName = createResTicket(server, client, tenantID)
 	})
 
 	AfterEach(func() {
@@ -395,10 +340,6 @@ var _ = Describe("Project", func() {
 			mockTask := createMockTask("CREATE_PROJECT", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 			projSpec := &ProjectCreateSpec{
-				ResourceTicket: ResourceTicketReservation{
-					resName,
-					[]QuotaLineItem{{"GB", 2, "vm.memory"}},
-				},
 				Name: randomString(10, "go-sdk-project-"),
 			}
 			task, err := client.Tenants.CreateProject(tenantID, projSpec)
@@ -491,13 +432,11 @@ var _ = Describe("IAM", func() {
 		server   *mocks.Server
 		client   *Client
 		tenantID string
-		resName  string
 	)
 
 	BeforeEach(func() {
 		server, client = testSetup()
 		tenantID = createTenant(server, client)
-		resName = createResTicket(server, client, tenantID)
 	})
 
 	AfterEach(func() {
