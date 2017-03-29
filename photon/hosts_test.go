@@ -147,22 +147,6 @@ var _ = Describe("Host", func() {
 		})
 	})
 
-	Describe("SetHostZone", func() {
-		It("set host's zone", func() {
-			mockTask := createMockTask("SET_ZONE", "COMPLETED")
-			server.SetResponseJson(200, mockTask)
-
-			hostSetZoneOperation := &HostSetZoneOperation{ZoneId: "zone-Id"}
-			task, err := client.Hosts.SetZone("host-Id", hostSetZoneOperation)
-			task, err = client.Tasks.Wait(task.ID)
-			GinkgoT().Log(err)
-			Expect(err).Should(BeNil())
-			Expect(task).ShouldNot(BeNil())
-			Expect(task.Operation).Should(Equal("SET_ZONE"))
-			Expect(task.State).Should(Equal("COMPLETED"))
-		})
-	})
-
 	Describe("GetTasks", func() {
 		It("GetTasks returns a completed task", func() {
 			mockTask := createMockTask("CREATE_HOST", "COMPLETED")
