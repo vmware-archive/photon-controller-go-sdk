@@ -179,7 +179,6 @@ var _ = Describe("Host", func() {
 	Describe("GetVms", func() {
 		var (
 			tenantID     string
-			resName      string
 			projID       string
 			imageID      string
 			flavorSpec   *FlavorCreateSpec
@@ -189,11 +188,10 @@ var _ = Describe("Host", func() {
 
 		BeforeEach(func() {
 			tenantID = createTenant(server, client)
-			resName = createResTicket(server, client, tenantID)
-			projID = createProject(server, client, tenantID, resName)
+			projID = createProject(server, client, tenantID)
 			imageID = createImage(server, client)
 			flavorSpec = &FlavorCreateSpec{
-				[]QuotaLineItem{QuotaLineItem{"COUNT", 1, "ephemeral-disk.cost"}},
+				[]QuotaLineItem{{"COUNT", 1, "ephemeral-disk.cost"}},
 				"ephemeral-disk",
 				randomString(10, "go-sdk-flavor-"),
 			}
@@ -206,8 +204,8 @@ var _ = Describe("Host", func() {
 				Name: randomString(10, "go-sdk-flavor-"),
 				Kind: "vm",
 				Cost: []QuotaLineItem{
-					QuotaLineItem{"GB", 2, "vm.memory"},
-					QuotaLineItem{"COUNT", 4, "vm.cpu"},
+					{"GB", 2, "vm.memory"},
+					{"COUNT", 4, "vm.cpu"},
 				},
 			}
 			_, err = client.Flavors.Create(vmFlavorSpec)
@@ -218,7 +216,7 @@ var _ = Describe("Host", func() {
 				Flavor:        vmFlavorSpec.Name,
 				SourceImageID: imageID,
 				AttachedDisks: []AttachedDisk{
-					AttachedDisk{
+					{
 						CapacityGB: 1,
 						Flavor:     flavorSpec.Name,
 						Kind:       "ephemeral-disk",

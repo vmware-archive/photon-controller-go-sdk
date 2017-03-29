@@ -22,7 +22,6 @@ var _ = Describe("Service", func() {
 		kubernetesServiceSpec *ServiceCreateSpec
 		mesosServiceSpec      *ServiceCreateSpec
 		tenantID              string
-		resName               string
 		projID                string
 	)
 
@@ -32,8 +31,7 @@ var _ = Describe("Service", func() {
 		}
 		server, client = testSetup()
 		tenantID = createTenant(server, client)
-		resName = createResTicket(server, client, tenantID)
-		projID = createProject(server, client, tenantID, resName)
+		projID = createProject(server, client, tenantID)
 		kubernetesMap := map[string]string{"dns": "1.1.1.1", "gateway": "1.1.1.2", "netmask": "255.255.255.128",
 			"master_ip": "1.1.1.3", "container_network": "1.2.0.0/16"}
 		kubernetesServiceSpec = &ServiceCreateSpec{

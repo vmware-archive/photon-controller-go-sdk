@@ -71,28 +71,10 @@ func cleanTenants(client *Client) {
 	}
 }
 
-func createResTicket(server *mocks.Server, client *Client, tenantID string) string {
-	resTicketName := randomString(10)
-	spec := &ResourceTicketCreateSpec{
-		Name:   resTicketName,
-		Limits: []QuotaLineItem{QuotaLineItem{Unit: "GB", Value: 16, Key: "vm.memory"}},
-	}
-	mockTask := createMockTask("CREATE_RESOURCE_TICKET", "COMPLETED")
-	server.SetResponseJson(200, mockTask)
-	_, err := client.Tenants.CreateResourceTicket(tenantID, spec)
-	GinkgoT().Log(err)
-	Expect(err).Should(BeNil())
-	return resTicketName
-}
-
-func createProject(server *mocks.Server, client *Client, tenantID string, resName string) string {
+func createProject(server *mocks.Server, client *Client, tenantID string) string {
 	mockTask := createMockTask("CREATE_PROJECT", "COMPLETED")
 	server.SetResponseJson(200, mockTask)
 	projSpec := &ProjectCreateSpec{
-		ResourceTicket: ResourceTicketReservation{
-			resName,
-			[]QuotaLineItem{QuotaLineItem{"GB", 2, "vm.memory"}},
-		},
 		Name:          randomString(10, "go-sdk-project-"),
 		ResourceQuota: createMockQuota(),
 	}

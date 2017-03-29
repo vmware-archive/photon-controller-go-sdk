@@ -20,7 +20,6 @@ var _ = Describe("Disk", func() {
 		server     *mocks.Server
 		client     *Client
 		tenantID   string
-		resName    string
 		projID     string
 		flavorName string
 		flavorID   string
@@ -30,8 +29,7 @@ var _ = Describe("Disk", func() {
 	BeforeEach(func() {
 		server, client = testSetup()
 		tenantID = createTenant(server, client)
-		resName = createResTicket(server, client, tenantID)
-		projID = createProject(server, client, tenantID, resName)
+		projID = createProject(server, client, tenantID)
 		flavorName, flavorID = createFlavor(server, client)
 		diskSpec = &DiskCreateSpec{
 			Flavor:     flavorName,
