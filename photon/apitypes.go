@@ -604,6 +604,7 @@ type Service struct {
 	ImageID            string                `json:"imageId"`
 	UpgradeStatus      *ServiceUpgradeStatus `json:"upgradeStatus,omitempty"`
 	ProjectID          string                `json:"projectID,omitempty"`
+	ClientID           string                `json:"clientId,omitempty"`
 	WorkerCount        int                   `json:"workerCount"`
 	SelfLink           string                `json:"selfLink,omitempty"`
 	ErrorReason        string                `json:"errorReason,omitempty"`
