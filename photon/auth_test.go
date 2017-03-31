@@ -63,6 +63,30 @@ var _ = Describe("Auth", func() {
 		})
 	})
 
+	Describe("GetClientTokensByPassword", func() {
+		Context("when auth is enabled", func() {
+			BeforeEach(func() {
+				server.SetResponseJson(200, createMockAuthInfo(authServer))
+			})
+
+			It("returns tokens", func() {
+				expected := &TokenOptions{
+					AccessToken:  "fake_access_token",
+					ExpiresIn:    36000,
+					RefreshToken: "fake_refresh_token",
+					IdToken:      "fake_id_token",
+					TokenType:    "Bearer",
+				}
+				authServer.SetResponseJson(200, expected)
+
+				info, err := client.Auth.GetClientTokensByPassword("username", "password", "client_id")
+				fmt.Fprintf(GinkgoWriter, "Got tokens: %+v\n", info)
+				Expect(err).Should(BeNil())
+				Expect(info).Should(BeEquivalentTo(expected))
+			})
+		})
+	})
+
 	Describe("GetTokensByRefreshToken", func() {
 		Context("when auth is enabled", func() {
 			BeforeEach(func() {
