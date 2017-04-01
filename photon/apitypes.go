@@ -535,13 +535,6 @@ type NetworkConfiguration struct {
 	SnatIp          string   `json:"snatIp,omitempty"`
 }
 
-// Creation spec for networks.
-type NetworkCreateSpec struct {
-	Name        string   `json:"name"`
-	Description string   `json:"description,omitempty"`
-	PortGroups  []string `json:"portGroups"`
-}
-
 // Represents a router
 type Router struct {
 	ID            string `json:"id"`
@@ -707,7 +700,7 @@ type NsxConfigurationSpec struct {
 
 // Represents port groups.
 type PortGroups struct {
-	PortGroups []string `json:"portGroups"`
+	Names []string `json:"names"`
 }
 
 // Represents a subnet
@@ -730,10 +723,11 @@ type Subnets struct {
 
 // Creation spec for subnets.
 type SubnetCreateSpec struct {
-	Name          string `json:"name"`
-	Description   string `json:"description"`
-	PrivateIpCidr string `json:"privateIpCidr"`
-	Type          string `json:"type"`
+	Name          string     `json:"name"`
+	Description   string     `json:"description"`
+	PrivateIpCidr string     `json:"privateIpCidr"`
+	Type          string     `json:"type"`
+	PortGroups    PortGroups `json:"portGroups"`
 }
 
 // Represents name that can be set for subnet

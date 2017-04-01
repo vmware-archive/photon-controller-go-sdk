@@ -17,13 +17,14 @@ import (
 
 var _ = Describe("Subnet", func() {
 	var (
-		server           *mocks.Server
-		client           *Client
-		subnetCreateSpec *SubnetCreateSpec
-		networkSpec      *NetworkCreateSpec
-		tenantID         string
-		projID           string
-		routerID         string
+		server                   *mocks.Server
+		client                   *Client
+		subnetCreateSpec         *SubnetCreateSpec
+		subnetSpecWithPortGroups *SubnetCreateSpec
+		portGroups               *PortGroups
+		tenantID                 string
+		projID                   string
+		routerID                 string
 	)
 
 	BeforeEach(func() {
@@ -31,11 +32,9 @@ var _ = Describe("Subnet", func() {
 		tenantID = createTenant(server, client)
 		projID = createProject(server, client, tenantID)
 		routerID = createRouter(server, client, projID)
+		portGroups = &PortGroups{Names: []string{"portGroup"}}
 		subnetCreateSpec = &SubnetCreateSpec{Name: "subnet-1", Description: "Test subnet", PrivateIpCidr: "cidr1"}
-		networkSpec = &NetworkCreateSpec{
-			Name:       randomString(10, "go-sdk-network-"),
-			PortGroups: []string{"portGroup"},
-		}
+		subnetSpecWithPortGroups = &SubnetCreateSpec{Name: "subnet-1", Description: "Test subnet", PrivateIpCidr: "cidr1"}
 	})
 
 	AfterEach(func() {
@@ -74,7 +73,7 @@ var _ = Describe("Subnet", func() {
 			mockTask := createMockTask("CREATE_PORT_GROUP", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 
-			task, err := client.Subnets.Create(networkSpec)
+			task, err := client.Subnets.Create(subnetSpecWithPortGroups)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
@@ -128,15 +127,15 @@ var _ = Describe("Subnet", func() {
 			Expect(err).Should(BeNil())
 		})
 
-		It("GetAll Network succeeds", func() {
-			mockTask := createMockTask("CREATE_NETWORK", "COMPLETED")
+		It("GetAll Subnet succeeds", func() {
+			mockTask := createMockTask("CREATE_SUBNET", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
-			task, err := client.Subnets.Create(networkSpec)
+			task, err := client.Subnets.Create(subnetSpecWithPortGroups)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 
-			server.SetResponseJson(200, createMockSubnetsPage(Subnet{Name: networkSpec.Name}))
+			server.SetResponseJson(200, createMockSubnetsPage(Subnet{Name: subnetSpecWithPortGroups.Name}))
 			subnets, err := client.Subnets.GetAll(&SubnetGetOptions{})
 
 			GinkgoT().Log(err)
@@ -145,14 +144,14 @@ var _ = Describe("Subnet", func() {
 
 			var found bool
 			for _, subnet := range subnets.Items {
-				if subnet.Name == networkSpec.Name && subnet.ID == task.Entity.ID {
+				if subnet.Name == subnetSpecWithPortGroups.Name && subnet.ID == task.Entity.ID {
 					found = true
 					break
 				}
 			}
 			Expect(found).Should(BeTrue())
 
-			mockTask = createMockTask("DELETE_NETWORK", "COMPLETED")
+			mockTask = createMockTask("DELETE_SUBNET", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
 			task, err = client.Subnets.Delete(task.Entity.ID)
 			task, err = client.Tasks.Wait(task.ID)
@@ -163,13 +162,13 @@ var _ = Describe("Subnet", func() {
 		It("GetAll PortGroups with optional name succeeds", func() {
 			mockTask := createMockTask("CREATE_PORT_GROUP", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
-			task, err := client.Subnets.Create(networkSpec)
+			task, err := client.Subnets.Create(subnetSpecWithPortGroups)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 
-			server.SetResponseJson(200, createMockSubnetsPage(Subnet{Name: networkSpec.Name}))
-			subnets, err := client.Subnets.GetAll(&SubnetGetOptions{Name: networkSpec.Name})
+			server.SetResponseJson(200, createMockSubnetsPage(Subnet{Name: subnetSpecWithPortGroups.Name}))
+			subnets, err := client.Subnets.GetAll(&SubnetGetOptions{Name: subnetSpecWithPortGroups.Name})
 
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
@@ -177,7 +176,7 @@ var _ = Describe("Subnet", func() {
 
 			var found bool
 			for _, subnet := range subnets.Items {
-				if subnet.Name == networkSpec.Name && subnet.ID == task.Entity.ID {
+				if subnet.Name == subnetSpecWithPortGroups.Name && subnet.ID == task.Entity.ID {
 					found = true
 					break
 				}
