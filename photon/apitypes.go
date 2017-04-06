@@ -218,6 +218,7 @@ type Image struct {
 	State               string         `json:"state"`
 	ID                  string         `json:"id"`
 	Tags                []string       `json:"tags"`
+	Scope               ImageScope     `json:"scope"`
 	SelfLink            string         `json:"selfLink"`
 	Settings            []ImageSetting `json:"settings"`
 	ReplicationType     string         `json:"replicationType"`
@@ -225,7 +226,13 @@ type Image struct {
 	SeedingProgress     string         `json:"seedingProgress"`
 }
 
-// Represents an image setting
+// Represents an image scope.
+type ImageScope struct {
+	Kind         string `json:"kind"`
+	ID           string `json:"id"`
+}
+
+// Represents an image setting.
 type ImageSetting struct {
 	Name         string `json:"name"`
 	DefaultValue string `json:"defaultValue"`
