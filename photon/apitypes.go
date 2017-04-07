@@ -501,7 +501,7 @@ type StatsInfo struct {
 type AuthInfo struct {
 	Password       string   `json:"password,omitempty"`
 	Endpoint       string   `json:"endpoint,omitempty"`
-	Tenant         string   `json:"tenant,omitempty"`
+	Domain         string   `json:"domain,omitempty"`
 	Port           int      `json:"port,omitempty"`
 	SecurityGroups []string `json:"securityGroups,omitempty"`
 	Username       string   `json:"username,omitempty"`
