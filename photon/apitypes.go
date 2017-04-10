@@ -516,6 +516,7 @@ type IpRange struct {
 // Represents creation spec for network configuration.
 type NetworkConfigurationCreateSpec struct {
 	Enabled         bool     `json:"sdnEnabled,omitempty"`
+	NsxCni          bool     `json:"nsxCniEnabled,omitempty"`
 	Address         string   `json:"networkManagerAddress,omitempty"`
 	Username        string   `json:"networkManagerUsername,omitempty"`
 	Password        string   `json:"networkManagerPassword,omitempty"`
@@ -530,6 +531,7 @@ type NetworkConfigurationCreateSpec struct {
 // Represents network configuration.
 type NetworkConfiguration struct {
 	Enabled         bool     `json:"sdnEnabled,omitempty"`
+	NsxCni          bool     `json:"nsxCniEnabled,omitempty"`
 	Address         string   `json:"networkManagerAddress,omitempty"`
 	Username        string   `json:"networkManagerUsername,omitempty"`
 	Password        string   `json:"networkManagerPassword,omitempty"`
@@ -706,6 +708,16 @@ type NsxConfigurationSpec struct {
 	DnsServerAddresses     []string          `json:"dnsServerAddresses"`
 }
 
+type NsxCniConfigurationSpec struct {
+	NsxAddress              string            `json:"nsxAddress"`
+	NsxUsername             string            `json:"nsxUsername"`
+	NsxPassword             string            `json:"nsxPassword"`
+	DhcpServerAddresses     map[string]string `json:"dhcpServerAddresses"`
+	ServiceFloatingIpCidr   string            `json:"serviceFloatingIpCidr"`
+	ServiceFloatingRange    IpRange           `json:"serviceFloatingIpRange"`
+	CniPodNetworkBlockCidr  string            `json:"cniPodNetworkBlockCidr"`
+	CniPodNetworkSubnetSize string            `json:"CniPodNetworkSubnetSize"`
+}
 // Represents port groups.
 type PortGroups struct {
 	Names []string `json:"names"`

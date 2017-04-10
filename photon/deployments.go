@@ -141,6 +141,27 @@ func (api *DeploymentsAPI) ConfigureNsx(id string, nsxConfigSpec *NsxConfigurati
 	return
 }
 
+// Configure NSX.
+func (api *DeploymentsAPI) ConfigureNsxCni(id string, nsxCniConfigSpec *NsxCniConfigurationSpec) (task *Task, err error) {
+	body, err := json.Marshal(nsxCniConfigSpec)
+	if err != nil {
+		return
+	}
+
+	res, err := api.client.restClient.Post(
+		api.getEntityUrl(id)+"/configure_nsx_cni",
+		"application/json",
+		bytes.NewReader(body),
+		api.client.options.TokenOptions)
+	if err != nil {
+		return
+	}
+	defer res.Body.Close()
+
+	task, err = getTask(getError(res))
+	return
+}
+
 func (api *DeploymentsAPI) getEntityUrl(id string) (url string) {
 	return api.client.Endpoint + deploymentUrl + "/" + id
 }
