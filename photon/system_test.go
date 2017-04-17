@@ -50,7 +50,7 @@ var _ = Describe("System", func() {
 	// Tests system info
 	Describe("GetSystemInfo", func() {
 		It("GetInfoFromDeployment", func() {
-			mockDeployment := Deployment{
+			mockDeployment := SystemInfo{
 				ImageDatastores:         []string{randomString(10, "go-sdk-deployment-")},
 				UseImageDatastoreForVms: true,
 				Auth:                 &AuthInfo{},
