@@ -186,7 +186,7 @@ var _ = Describe("Deployment", func() {
 
 	Describe("EnableAndDisableServiceType", func() {
 		It("Enable And Disable Service Type", func() {
-			serviceType := "SWARM"
+			serviceType := "KUBERNETES"
 			serviceImageId := "testImageId"
 			serviceConfigSpec := &ServiceConfigurationSpec{
 				Type:    serviceType,

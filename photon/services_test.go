@@ -20,7 +20,6 @@ var _ = Describe("Service", func() {
 		server                *mocks.Server
 		client                *Client
 		kubernetesServiceSpec *ServiceCreateSpec
-		mesosServiceSpec      *ServiceCreateSpec
 		tenantID              string
 		projID                string
 	)
@@ -41,15 +40,6 @@ var _ = Describe("Service", func() {
 			BatchSizeWorker:    1,
 			ExtendedProperties: kubernetesMap,
 		}
-		mesosMap := map[string]string{"dns": "1.1.1.1", "gateway": "1.1.1.2", "netmask": "255.255.255.128",
-			"zookeeper_ip1": "1.1.1.4", "zookeeper_ip2": "1.1.1.5", "zookeeper_ip3": "1.1.1.6"}
-		mesosServiceSpec = &ServiceCreateSpec{
-			Name:               randomString(10, "go-sdk-service-"),
-			Type:               "MESOS",
-			WorkerCount:        2,
-			BatchSizeWorker:    1,
-			ExtendedProperties: mesosMap,
-		}
 	})
 
 	AfterEach(func() {
@@ -64,29 +54,6 @@ var _ = Describe("Service", func() {
 			server.SetResponseJson(200, mockTask)
 
 			task, err := client.Projects.CreateService(projID, kubernetesServiceSpec)
-			task, err = client.Tasks.Wait(task.ID)
-			GinkgoT().Log(err)
-			Expect(err).Should(BeNil())
-			Expect(task).ShouldNot(BeNil())
-			Expect(task.Operation).Should(Equal("CREATE_SERVICE"))
-			Expect(task.State).Should(Equal("COMPLETED"))
-
-			mockTask = createMockTask("DELETE_SERVICE", "COMPLETED")
-			server.SetResponseJson(200, mockTask)
-			task, err = client.Services.Delete(task.Entity.ID)
-			task, err = client.Tasks.Wait(task.ID)
-			GinkgoT().Log(err)
-			Expect(err).Should(BeNil())
-			Expect(task).ShouldNot(BeNil())
-			Expect(task.Operation).Should(Equal("DELETE_SERVICE"))
-			Expect(task.State).Should(Equal("COMPLETED"))
-		})
-
-		It("Mesos s create and delete succeeds", func() {
-			mockTask := createMockTask("CREATE_SERVICE", "COMPLETED")
-			server.SetResponseJson(200, mockTask)
-
-			task, err := client.Projects.CreateService(projID, mesosServiceSpec)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
@@ -234,7 +201,7 @@ var _ = Describe("Service", func() {
 	})
 
 	Describe("Change version service", func() {
-		It("Resize succeeds", func() {
+		It("Change version succeeds", func() {
 			imageID := createImage(server, client)
 			mockTask := createMockTask("CREATE_SERVICE", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
