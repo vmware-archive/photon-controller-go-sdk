@@ -50,7 +50,7 @@ func (api *SystemAPI) GetSystemInfo() (deployment *Deployment, err error) {
 	}
 	var result Deployment
 	err = json.NewDecoder(res.Body).Decode(&result)
-	return &result, nil
+	return &result, err
 }
 
 // Pause system.
@@ -134,7 +134,7 @@ func (api *SystemAPI) GetSystemSize() (deploymentSize *DeploymentSize, err error
 	}
 	var result DeploymentSize
 	err = json.NewDecoder(res.Body).Decode(&result)
-	return &result, nil
+	return &result, err
 }
 
 // Gets authentication info.
