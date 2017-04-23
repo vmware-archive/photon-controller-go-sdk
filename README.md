@@ -31,7 +31,7 @@ import (
 
 func main() {
 	client := photon.NewClient("http://localhost:9080", nil, nil)
-	status, err := client.Status.Get()
+	status, err := client.System.GetSystemStatus()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -71,7 +71,7 @@ import (
 
 func main() {
 	client := photon.NewClient("http://localhost:9080", nil, nil)
-	status, err := client.Status.Get()
+	status, err := client.System.GetSystemStatus()
 	if err != nil {
 		log.Fatal(err)
 	}
