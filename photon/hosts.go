@@ -60,22 +60,6 @@ func (api *HostsAPI) GetTasks(id string, options *TaskGetOptions) (result *TaskL
 	return
 }
 
-// Gets all the vms with the specified host ID.
-func (api *HostsAPI) GetVMs(id string) (result *VMs, err error) {
-	res, err := api.client.restClient.Get(api.client.Endpoint+hostUrl+"/"+id+"/vms", api.client.options.TokenOptions)
-	if err != nil {
-		return
-	}
-	defer res.Body.Close()
-	res, err = getError(res)
-	if err != nil {
-		return
-	}
-	result = &VMs{}
-	err = json.NewDecoder(res.Body).Decode(result)
-	return
-}
-
 // provision the host with the specified id
 func (api *HostsAPI) Provision(id string) (task *Task, err error) {
 	body := []byte{}
