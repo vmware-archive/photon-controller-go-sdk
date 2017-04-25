@@ -312,7 +312,7 @@ var _ = Describe("Infra Host", func() {
 			Expect(err).Should(BeNil())
 
 			server.SetResponseJson(200, &VMs{[]VM{VM{Name: vmSpec.Name}}})
-			vmList, err := client.Hosts.GetVMs(hostTask.Entity.ID)
+			vmList, err := client.InfraHosts.GetVMs(hostTask.Entity.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
 
