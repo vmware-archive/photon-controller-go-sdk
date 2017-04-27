@@ -19,7 +19,7 @@ type HostsAPI struct {
 	client *Client
 }
 
-var hostUrl string = rootUrl + "/hosts"
+var hostUrl string = rootUrl + "/infrastructure/hosts"
 
 // Sets host's availability zone.
 func (api *HostsAPI) SetAvailabilityZone(id string, availabilityZone *HostSetAvailabilityZoneOperation) (task *Task, err error) {
