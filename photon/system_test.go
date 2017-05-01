@@ -129,7 +129,7 @@ var _ = Describe("System", func() {
 			server.SetResponseJson(200, mockTask)
 
 			// Set security groups for the system
-			expected := &Deployment{
+			expected := &SystemInfo{
 				Auth: &AuthInfo{
 					SecurityGroups: []string{
 						randomString(10),
@@ -157,7 +157,7 @@ var _ = Describe("System", func() {
 	// Tests system size
 	Describe("SystemSize", func() {
 		It("GetSystemSize", func() {
-			mockSize := &DeploymentSize{
+			mockSize := &SystemUsage{
 				NumberDatastores: 1,
 				NumberHosts:      1,
 				NumberProjects:   0,
