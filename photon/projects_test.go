@@ -252,6 +252,48 @@ var _ = Describe("Project", func() {
 		})
 	})
 
+	Describe("GetProjectNetworks", func() {
+		It("GetAll returns network", func() {
+			mockTask := createMockTask("CREATE_NETWORK", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			networkSpec := &NetworkCreateSpec{
+				Name:          "network_name",
+				PrivateIpCidr: "192.168.0.1/24",
+			}
+
+			task, err := client.Projects.CreateNetwork(projID, networkSpec)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+
+			networkMock := Network{
+				Name:          networkSpec.Name,
+				PrivateIpCidr: networkSpec.PrivateIpCidr,
+			}
+			server.SetResponseJson(200, &Networks{[]Network{networkMock}})
+			networkList, err := client.Projects.GetNetworks(projID, &NetworkGetOptions{})
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(networkList).ShouldNot(BeNil())
+
+			var found bool
+			for _, network := range networkList.Items {
+				if network.Name == networkSpec.Name && network.ID == task.Entity.ID {
+					found = true
+					break
+				}
+			}
+			Expect(found).Should(BeTrue())
+
+			mockTask = createMockTask("DELETE_NETWORK", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err = client.Networks.Delete(task.Entity.ID)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+		})
+	})
+
 	Describe("GetProjectServices", func() {
 		It("GetAll returns service", func() {
 			if isIntegrationTest() {
