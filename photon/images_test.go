@@ -260,9 +260,9 @@ var _ = Describe("Image", func() {
 		It("Set IAM Policy succeeds", func() {
 			mockTask := createMockTask("SET_IAM_POLICY", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
-			var policy []PolicyEntry
-			policy = []PolicyEntry{{Principal: "joe@photon.local", Roles: []string{"owner"}}}
-			task, err := client.Images.SetIam("imageId", &policy)
+			var policy []*RoleBinding
+			policy = []*RoleBinding{{Role: "owner", Subjects: []string{"joe@photon.local"}}}
+			task, err := client.Images.SetIam("imageId", policy)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
@@ -274,9 +274,9 @@ var _ = Describe("Image", func() {
 		It("Modify IAM Policy succeeds", func() {
 			mockTask := createMockTask("MODIFY_IAM_POLICY", "COMPLETED")
 			server.SetResponseJson(200, mockTask)
-			var delta PolicyDelta
-			delta = PolicyDelta{Principal: "joe@photon.local", Action: "ADD", Role: "owner"}
-			task, err := client.Images.ModifyIam("imageId", &delta)
+			var delta []*RoleBindingDelta
+			delta = []*RoleBindingDelta{{Subject: "joe@photon.local", Action: "ADD", Role: "owner"}}
+			task, err := client.Images.ModifyIam("imageId", delta)
 			task, err = client.Tasks.Wait(task.ID)
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
@@ -286,15 +286,15 @@ var _ = Describe("Image", func() {
 		})
 
 		It("Get IAM Policy succeeds", func() {
-			var policy []PolicyEntry
-			policy = []PolicyEntry{{Principal: "joe@photon.local", Roles: []string{"owner"}}}
+			var policy []*RoleBinding
+			policy = []*RoleBinding{{Role: "owner", Subjects: []string{"joe@photon.local"}}}
 			server.SetResponseJson(200, policy)
 			response, err := client.Images.GetIam("imageId")
 
 			GinkgoT().Log(err)
 			Expect(err).Should(BeNil())
-			Expect((*response)[0].Principal).Should(Equal(policy[0].Principal))
-			Expect((*response)[0].Roles).Should(Equal(policy[0].Roles))
+			Expect(response[0].Subjects).Should(Equal(policy[0].Subjects))
+			Expect(response[0].Role).Should(Equal(policy[0].Role))
 		})
 	})
 })
