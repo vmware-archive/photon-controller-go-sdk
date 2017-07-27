@@ -577,4 +577,124 @@ var _ = Describe("VM", func() {
 			Expect(image.Name).Should(Equal(imageName))
 		})
 	})
+
+	Describe("ManageVMIamPolicy", func() {
+		It("Set IAM Policy succeeds", func() {
+			mockTask := createMockTask("CREATE_VM", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+
+			task, err := client.Projects.CreateVM(projID, vmSpec)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("CREATE_VM"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+
+			vmID := task.Entity.ID
+			mockTask = createMockTask("SET_IAM_POLICY", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			var policy []*RoleBinding
+			policy = []*RoleBinding{{Role: "owner", Subjects: []string{"joe@photon.local"}}}
+			task, err = client.VMs.SetIam(vmID, policy)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("SET_IAM_POLICY"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+
+			mockTask = createMockTask("DELETE_VM", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err = client.VMs.Delete(vmID)
+			task, err = client.Tasks.Wait(task.ID)
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("DELETE_VM"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+		})
+
+		It("Modify IAM Policy succeeds", func() {
+			mockTask := createMockTask("CREATE_VM", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+
+			task, err := client.Projects.CreateVM(projID, vmSpec)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("CREATE_VM"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+
+			vmID := task.Entity.ID
+			mockTask = createMockTask("MODIFY_IAM_POLICY", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			var delta []*RoleBindingDelta
+			delta = []*RoleBindingDelta{{Subject: "joe@photon.local", Action: "ADD", Role: "owner"}}
+			task, err = client.VMs.ModifyIam(vmID, delta)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("MODIFY_IAM_POLICY"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+
+			mockTask = createMockTask("DELETE_VM", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err = client.VMs.Delete(vmID)
+			task, err = client.Tasks.Wait(task.ID)
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("DELETE_VM"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+		})
+
+		It("Get IAM Policy succeeds", func() {
+			mockTask := createMockTask("CREATE_VM", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+
+			task, err := client.Projects.CreateVM(projID, vmSpec)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("CREATE_VM"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+
+			vmID := task.Entity.ID
+			mockTask = createMockTask("SET_IAM_POLICY", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			var policy []*RoleBinding
+			policy = []*RoleBinding{{Role: "owner", Subjects: []string{"joe@photon.local"}}}
+			task, err = client.VMs.SetIam(vmID, policy)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("SET_IAM_POLICY"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+
+			server.SetResponseJson(200, policy)
+			response, err := client.VMs.GetIam(vmID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(response[0].Subjects).Should(Equal(policy[0].Subjects))
+			Expect(response[0].Role).Should(Equal(policy[0].Role))
+
+			mockTask = createMockTask("DELETE_VM", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			task, err = client.VMs.Delete(vmID)
+			task, err = client.Tasks.Wait(task.ID)
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("DELETE_VM"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+		})
+	})
 })
