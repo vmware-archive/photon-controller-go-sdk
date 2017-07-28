@@ -148,4 +148,76 @@ var _ = Describe("Flavor", func() {
 			Expect(err).Should(BeNil())
 		})
 	})
+
+	Describe("ManageFlavorIamPolicy", func() {
+		var (
+			flavorName string
+			flavorID   string
+		)
+
+		BeforeEach(func() {
+			flavorName, flavorID = createFlavor(server, client)
+		})
+
+		It("Set IAM Policy succeeds", func() {
+			mockTask := createMockTask("SET_IAM_POLICY", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			var policy []*RoleBinding
+			policy = []*RoleBinding{{Role: "owner", Subjects: []string{"joe@photon.local"}}}
+			task, err := client.Flavors.SetIam(flavorID, policy)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("SET_IAM_POLICY"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+
+			mockTask = createMockTask("DELETE_FLAVOR", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			_, err = client.Flavors.Delete(flavorID)
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+		})
+
+		It("Modify IAM Policy succeeds", func() {
+			mockTask := createMockTask("MODIFY_IAM_POLICY", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			var delta []*RoleBindingDelta
+			delta = []*RoleBindingDelta{{Subject: "joe@photon.local", Action: "ADD", Role: "owner"}}
+			task, err := client.Flavors.ModifyIam(flavorID, delta)
+			task, err = client.Tasks.Wait(task.ID)
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(task).ShouldNot(BeNil())
+			Expect(task.Operation).Should(Equal("MODIFY_IAM_POLICY"))
+			Expect(task.State).Should(Equal("COMPLETED"))
+
+			mockTask = createMockTask("DELETE_FLAVOR", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			_, err = client.Flavors.Delete(flavorID)
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+		})
+
+		It("Get IAM Policy succeeds", func() {
+			var policy []*RoleBinding
+			policy = []*RoleBinding{{Role: "owner", Subjects: []string{"joe@photon.local"}}}
+			server.SetResponseJson(200, policy)
+			response, err := client.Flavors.GetIam(flavorID)
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+			Expect(response[0].Subjects).Should(Equal(policy[0].Subjects))
+			Expect(response[0].Role).Should(Equal(policy[0].Role))
+
+			mockTask := createMockTask("DELETE_FLAVOR", "COMPLETED")
+			server.SetResponseJson(200, mockTask)
+			_, err = client.Flavors.Delete(flavorID)
+
+			GinkgoT().Log(err)
+			Expect(err).Should(BeNil())
+		})
+	})
 })

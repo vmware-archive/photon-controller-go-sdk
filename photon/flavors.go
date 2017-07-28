@@ -106,3 +106,58 @@ func (api *FlavorsAPI) GetTasks(id string, options *TaskGetOptions) (result *Tas
 	err = json.Unmarshal(res, result)
 	return
 }
+
+// Gets IAM Policy on a flavor.
+func (api *FlavorsAPI) GetIam(id string) (policy []*RoleBinding, err error) {
+	res, err := api.client.restClient.Get(
+		api.client.Endpoint + flavorUrl + "/" + id + "/iam",
+		api.client.options.TokenOptions)
+	if err != nil {
+		return
+	}
+	defer res.Body.Close()
+	res, err = getError(res)
+	if err != nil {
+		return
+	}
+	err = json.NewDecoder(res.Body).Decode(&policy)
+	return policy, err
+}
+
+// Sets IAM Policy on a flavor.
+func (api *FlavorsAPI) SetIam(id string, policy []*RoleBinding) (task *Task, err error) {
+	body, err := json.Marshal(policy)
+	if err != nil {
+		return
+	}
+	res, err := api.client.restClient.Post(
+		api.client.Endpoint + flavorUrl + "/" + id + "/iam",
+		"application/json",
+		bytes.NewReader(body),
+		api.client.options.TokenOptions)
+	if err != nil {
+		return
+	}
+	defer res.Body.Close()
+	task, err = getTask(getError(res))
+	return
+}
+
+// Modifies IAM Policy on a flavor.
+func (api *FlavorsAPI) ModifyIam(id string, policyDelta []*RoleBindingDelta) (task *Task, err error) {
+	body, err := json.Marshal(policyDelta)
+	if err != nil {
+		return
+	}
+	res, err := api.client.restClient.Patch(
+		api.client.Endpoint + flavorUrl + "/" + id + "/iam",
+		"application/json",
+		bytes.NewReader(body),
+		api.client.options.TokenOptions)
+	if err != nil {
+		return
+	}
+	defer res.Body.Close()
+	task, err = getTask(getError(res))
+	return
+}
