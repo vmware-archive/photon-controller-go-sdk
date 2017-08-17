@@ -556,19 +556,19 @@ type ServiceCreateSpec struct {
 
 // Represents a service.
 type Service struct {
-	Kind               string                `json:"kind"`
-	Name               string                `json:"name"`
-	State              string                `json:"state"`
-	ID                 string                `json:"id"`
-	Type               string                `json:"type"`
-	ImageID            string                `json:"imageId"`
-	UpgradeStatus      *ServiceUpgradeStatus `json:"upgradeStatus,omitempty"`
-	ProjectID          string                `json:"projectID,omitempty"`
-	ClientID           string                `json:"clientId,omitempty"`
-	WorkerCount        int                   `json:"workerCount"`
-	SelfLink           string                `json:"selfLink,omitempty"`
-	ErrorReason        string                `json:"errorReason,omitempty"`
-	ExtendedProperties map[string]string     `json:"extendedProperties"`
+	Kind                string                `json:"kind"`
+	Name                string                `json:"name"`
+	State               string                `json:"state"`
+	ID                  string                `json:"id"`
+	Type                string                `json:"type"`
+	ImageID             string                `json:"imageId"`
+	UpgradeStatus       *ServiceUpgradeStatus `json:"upgradeStatus,omitempty"`
+	ProjectID           string                `json:"projectID,omitempty"`
+	ClientID            string                `json:"clientId,omitempty"`
+    ActualWorkerCount   int                   `json:"actualWorkerCount,omitempty"`
+    ExpectedWorkerCount int                   `json:"expectedWorkerCount,omitempty"`
+	ErrorReason         string                `json:"errorReason,omitempty"`
+	ExtendedProperties  map[string]string     `json:"extendedProperties"`
 }
 
 // Represents the status of a service during upgrade.
