@@ -1,6 +1,6 @@
 # Photon-controller-go-SDK
 
-# Getting Started with Photon Controller SDK
+# Getting Started
 
 1. If you haven't already, set up a Go workspace according to the
    [Go docs](http://golang.org/doc).
