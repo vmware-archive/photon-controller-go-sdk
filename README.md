@@ -1,3 +1,4 @@
+# Photon-controller-go-SDK
 
 # WARNING: Photon Controller GO SDK is no longer actively maintained by VMware.
 
@@ -6,10 +7,6 @@ to issues or pull requests. If you would like to take over maintaining this proj
 let us know so we can add a link to your forked project here.
 
 Thank You.
-
-
-#
-#
 
 # Getting Started with Photon Controller SDK
 
