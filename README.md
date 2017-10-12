@@ -1,6 +1,14 @@
 # Photon-controller-go-SDK
 
-# Getting Started
+# WARNING: Photon Controller GO SDK is no longer actively maintained by VMware.
+
+VMware has made the difficult decision to stop driving this project and therefore we will no longer actively respond 
+to issues or pull requests. If you would like to take over maintaining this project independently from VMware, please 
+let us know so we can add a link to your forked project here.
+
+Thank You.
+
+# Getting Started with Photon Controller SDK
 
 1. If you haven't already, set up a Go workspace according to the
    [Go docs](http://golang.org/doc).
